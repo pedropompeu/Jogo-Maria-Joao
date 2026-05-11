@@ -405,7 +405,8 @@ function resetP(x, y, hp) {
         hp: hp ?? BASE_HP, invT:0, facing:1,
         ft:0, frame:0, dead:false, dieT:0,
         starTimer:0, speedTimer:0, magnetTimer:0, hasShield:false,
-        combo:0, comboTimer:0 };
+        combo:0, comboTimer:0,
+        landSquash:0, wasOnG:false };
 }
 
 // ─── LOAD LEVEL ────────────────────────────────────────────────────────────
@@ -614,7 +615,8 @@ function noise(vol, dur, cutoff=400) {
 const SFX = {
   jump()    { tone(320,'sine',0.22,0.14,640); },
   djump()   { tone(480,'sine',0.18,0.08,960); setTimeout(()=>tone(720,'sine',0.12,0.08,1440),60); },
-  coin()    { tone(1047,'sine',0.15,0.12,1568); },
+  coin(semis=0) { const f=1047*Math.pow(2,semis/12); tone(f,'sine',0.15,0.12,f*1.5); },
+  land()    { noise(0.1,0.06,160); tone(95,'sine',0.07,0.08,40); },
   stomp()   { noise(0.4,0.1,280); tone(160,'sine',0.2,0.12,60); },
   hurt()    { tone(220,'sawtooth',0.25,0.18,110); noise(0.3,0.15,200); },
   shield()  { tone(660,'sine',0.2,0.06); tone(880,'sine',0.15,0.06); tone(1100,'sine',0.1,0.1); },
@@ -627,6 +629,9 @@ const SFX = {
   portalin(){ [784,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.15,0.15),i*50)); },
   gameover(){ [523,494,440,392,330].forEach((f,i)=>setTimeout(()=>tone(f,'sawtooth',0.2,0.25),i*100)); },
   magnet()  { [880,1320,880].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.15,0.1),i*60)); },
+  drip()    { const f=1200+Math.random()*600; tone(f,'sine',0.06,0.04,f*0.6); setTimeout(()=>noise(0.03,0.06,300),50); },
+  wave()    { noise(0.05,1.1,700); },
+  wind()    { noise(0.03,1.4,1600); },
 };
 
 // ─── FLOAT TEXTS ───────────────────────────────────────────────────────────
@@ -1022,13 +1027,18 @@ function updatePlayer(dt) {
   else if (keys.right) { p.vx=spd; p.facing=1; }
   else p.vx=0;
 
+  // landSquash decay
+  if(p.landSquash > 0) p.landSquash = Math.max(0, p.landSquash - 0.1 * dt);
+
   // speed trail
-  if(p.speedTimer>0 && (keys.left||keys.right))
-    spawnParticles(p.x+p.w/2,p.y+p.h/2,'#44ffcc',2);
+  if(p.speedTimer>0 && (keys.left||keys.right)) {
+    spawnParticles(p.x+(p.facing<0?p.w:0),p.y+p.h*0.6,'#44ffcc',3);
+    spawnParticles(p.x+(p.facing<0?p.w:0),p.y+p.h*0.8,'#88ffee',2);
+  }
 
   // star rainbow trail
   if(p.starTimer>0)
-    spawnParticles(p.x+p.w/2,p.y+p.h/2,`hsl(${(performance.now()/5)%360},100%,70%)`,2);
+    spawnParticles(p.x+p.w/2,p.y+p.h/2,`hsl(${(performance.now()/5)%360},100%,70%)`,3);
 
   // jump
   if (jumpEdge) {
@@ -1063,7 +1073,11 @@ function updatePlayer(dt) {
       const wasAir = !p.onG;
       p.y  = pl.y - p.h;
       p.vy = 0; p.onG=true; p.djAvail=false;
-      if (wasAir) spawnDust(p.x+p.w/2, p.y+p.h, pl.type);
+      if (wasAir) {
+        spawnDust(p.x+p.w/2, p.y+p.h, pl.type);
+        p.landSquash = 1.0;
+        SFX.land();
+      }
       if (pl.type==='cloud') { p.vy=CLOUD_V; p.onG=false; p.djAvail=true;
         spawnParticles(p.x+p.w/2,p.y+p.h,'#ffffff',6); }
       if (pl.type==='crumble' && !pl.crumbling) { pl.crumbling=true; pl.cTimer=55; }
@@ -1090,7 +1104,8 @@ function updatePlayer(dt) {
   // coins
   for (const c of coins) {
     if (!c.col && overlap(p.x,p.y,p.w,p.h, c.x-10,c.y-10,20,20)) {
-      c.col=true; score+=10; SFX.coin();
+      c.col=true; score+=10;
+      SFX.coin(Math.floor(coins.filter(c=>c.col).length % 7));
       spawnParticles(c.x,c.y,'#ffe066',7);
       spawnFloat(c.x, c.y-10, '+10', '#ffe066');
       ui('scoreDisp',score);
@@ -1752,20 +1767,31 @@ function drawPortal() {
   if(!portal) return;
   const t=performance.now()/1000;
   portal.t=t;
+  const allCoins = coins.length > 0 && coins.every(c=>c.col);
+  const pulse = allCoins ? 1.4 + 0.3*Math.sin(t*6) : 1;
   ctx.save(); ctx.translate(-camX,0);
-  // glow ring
-  const cols=['#ff00ff','#8800ff','#00ccff'];
+  // extra glow when all coins collected
+  if(allCoins) {
+    ctx.globalAlpha=0.25+0.15*Math.sin(t*4);
+    ctx.fillStyle=`hsl(${(t*80)%360},100%,70%)`;
+    ctx.beginPath();
+    ctx.ellipse(portal.x+portal.w/2, portal.y+portal.h/2, portal.w/2+22, portal.h/2+22, 0,0,Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha=1;
+  }
+  // glow rings
+  const cols = allCoins ? ['#ffee00','#ff88ff','#00ffcc'] : ['#ff00ff','#8800ff','#00ccff'];
   for(let i=0;i<3;i++){
     ctx.globalAlpha=0.3+0.2*Math.sin(t*3+i);
-    ctx.strokeStyle=cols[i]; ctx.lineWidth=4+i*2;
+    ctx.strokeStyle=cols[i]; ctx.lineWidth=(4+i*2)*pulse;
     ctx.beginPath();
-    ctx.ellipse(portal.x+portal.w/2, portal.y+portal.h/2, portal.w/2+i*4, portal.h/2+i*4, 0,0,Math.PI*2);
+    ctx.ellipse(portal.x+portal.w/2, portal.y+portal.h/2, (portal.w/2+i*4)*pulse, (portal.h/2+i*4)*pulse, 0,0,Math.PI*2);
     ctx.stroke();
   }
   ctx.globalAlpha=1;
   // inner fill
   const g=ctx.createRadialGradient(portal.x+26,portal.y+36,5,portal.x+26,portal.y+36,30);
-  g.addColorStop(0,'#ffffff'); g.addColorStop(0.3,'#cc44ff'); g.addColorStop(1,'#44007700');
+  g.addColorStop(0,'#ffffff'); g.addColorStop(0.3,allCoins?'#ffee44':'#cc44ff'); g.addColorStop(1,'#44007700');
   ctx.fillStyle=g;
   ctx.beginPath();
   ctx.ellipse(portal.x+portal.w/2,portal.y+portal.h/2, portal.w/2,portal.h/2,0,0,Math.PI*2);
@@ -1776,6 +1802,12 @@ function drawPortal() {
   ctx.strokeRect(dx-10, dy-18, 20, 34);
   ctx.fillStyle='#ffee44';
   ctx.beginPath(); ctx.arc(dx+5, dy-2, 3, 0, Math.PI*2); ctx.fill();
+  // star above portal when all collected
+  if(allCoins) {
+    ctx.globalAlpha=0.7+0.3*Math.sin(t*5);
+    drawStar(dx, portal.y-16, 10, '#ffee44');
+    ctx.globalAlpha=1;
+  }
   ctx.restore();
 }
 
@@ -2014,7 +2046,18 @@ function drawPlayer() {
 
   ctx.save();
   ctx.translate(p.x + p.w/2, p.y + p.h/2);
-  ctx.scale(p.facing, 1);
+
+  // squash & stretch
+  let _sx = p.facing, _sy = 1;
+  if (p.landSquash > 0) {
+    _sx = p.facing * (1 + 0.28 * p.landSquash);
+    _sy = 1 - 0.22 * p.landSquash;
+  } else if (!p.onG) {
+    const spd = Math.min(Math.abs(p.vy) / 12, 1);
+    _sx = p.facing * (1 - 0.14 * spd);
+    _sy = 1 + 0.18 * spd;
+  }
+  ctx.scale(_sx, _sy);
 
   const cx = 0, cy = 0;
   const moving = keys.left || keys.right;
@@ -2425,15 +2468,32 @@ const MELODIES=[
 let _musicNodes=[], _musicTO=null, _curMelody=null;
 let musicMuted = localStorage.getItem('unicornMute')==='1';
 let _lastMusicIdx = 0;
+let _ambientTO = null;
+const AMBIENT_MAP = {
+  3: ()=>{ SFX.drip(); },  // caverna
+  5: ()=>{ SFX.wave(); },  // praia
+  2: ()=>{ SFX.wind(); },  // nuvens
+  8: ()=>{ SFX.wind(); },  // lua
+};
+function playAmbient(idx) {
+  clearTimeout(_ambientTO);
+  if(musicMuted) return;
+  const fn = AMBIENT_MAP[idx];
+  if(!fn) return;
+  const delay = 4000 + Math.random() * 6000;
+  _ambientTO = setTimeout(()=>{ if(gs==='playing'){ fn(); playAmbient(idx); } }, delay);
+}
 function playMusic(idx) {
   _lastMusicIdx = idx;
   stopMusic();
   if(musicMuted) return;
   _curMelody=MELODIES[Math.min(idx,MELODIES.length-1)];
   _schedMusic();
+  playAmbient(idx);
 }
 function stopMusic() {
   clearTimeout(_musicTO);
+  clearTimeout(_ambientTO);
   _musicNodes.forEach(n=>{ try{n.stop();}catch(e){} });
   _musicNodes=[]; _curMelody=null;
 }
@@ -2547,32 +2607,43 @@ function startCelebration() {
 function stopCelebration() { clearInterval(fwInterval); fwInterval=null; confetti=[]; fireworks=[]; }
 
 // ─── ANIMATED START BACKGROUND ─────────────────────────────────────────────
-let menuUnicornX = CW+60;
-let menuUnicornDir = -1; // approaching
+let menuUnicornX = CW + 60;
+let menuUnicornDir = -1; // -1 = trotting in, 0 = idle
 function drawMenuScene() {
-  // rolling sky
   drawMeadowBg({});
-  // animate unicorn trotting in
-  const t=performance.now()/1000;
-  if(menuUnicornDir===-1) {
+  const t = performance.now() / 1000;
+
+  if (menuUnicornDir === -1) {
     menuUnicornX -= 3;
-    if(menuUnicornX < CW/2-22) { menuUnicornDir=0; menuUnicornX=CW/2-22; }
+    if (menuUnicornX < CW / 2 - 22) { menuUnicornDir = 0; menuUnicornX = CW / 2 - 22; }
   }
-  // draw the unicorn in menu
-  ctx.save();
-  ctx.translate(menuUnicornX+22, CH-120);
-  ctx.scale(1.3,1.3);
-  // quick simplified draw (reuse drawPlayer internals by setting p temporarily)
-  const _px=p.x,_py=p.y,_pf=p.facing,_pg=p.onG;
-  p.x=menuUnicornX; p.y=CH-172; p.facing=menuUnicornDir===0?1:1; p.onG=menuUnicornDir===0;
-  ctx.restore();
-  // just draw sparkles + a wink prompt
-  if(menuUnicornDir===0) {
-    const blink = Math.sin(t*2)>0.9;
-    spawnParticles(menuUnicornX+10+Math.random()*20, CH-130+Math.random()*20,
-      `hsl(${t*80%360},100%,75%)`, 1);
+
+  // Save and override player state to draw unicorn at menu position
+  const _camX = camX;
+  const _px = p.x, _py = p.y, _pf = p.facing, _pg = p.onG, _pvy = p.vy;
+  const _pls = p.landSquash || 0, _pinv = p.invT;
+
+  camX = 0;
+  p.x = menuUnicornX;
+  p.y = CH - 172;
+  p.facing = 1;
+  p.onG = menuUnicornDir === 0;
+  p.vy = 0;
+  p.landSquash = 0;
+  p.invT = 0;
+
+  drawPlayer();
+
+  camX = _camX;
+  p.x = _px; p.y = _py; p.facing = _pf; p.onG = _pg;
+  p.vy = _pvy; p.landSquash = _pls; p.invT = _pinv;
+
+  // Horn sparkles when idle
+  if (menuUnicornDir === 0 && Math.random() < 0.3) {
+    const hornX = menuUnicornX + 11 + 2, hornY = CH - 172 + 26 - 22 - 18 - 16;
+    spawnParticles(hornX + (Math.random() - 0.5) * 12, hornY + Math.random() * 10,
+      `hsl(${(t * 80) % 360}, 100%, 75%)`, 1);
   }
-  p.x=_px; p.y=_py; p.facing=_pf; p.onG=_pg;
 }
 
 // ─── MAIN LOOP ─────────────────────────────────────────────────────────────
