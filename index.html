@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="Jogo da Maria">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="style.css?v=4.0">
+<link rel="stylesheet" href="style.css?v=4.1">
 </head>
 <body>
 
@@ -42,6 +42,7 @@
       </svg>
     </button>
   </div>
+
   <canvas id="gameCanvas" width="1000" height="600"></canvas>
   <div id="controls-hint">⬅️ ➡️ Mover &nbsp;|&nbsp; ⬆️ / ESPAÇO Pular (2x) &nbsp;|&nbsp; P Pausar</div>
 
@@ -60,6 +61,80 @@
       </div>
     </div>
   </div>
+
+  <!-- Telas de Overlay — dentro do gameContainer para seguir o canvas -->
+  <div class="overlay show" id="startScreen">
+    <div class="over-title">🦄 Unicórnio Mágico da Maria ✨</div>
+    <div class="over-sub">Colete moedas, evite inimigos e passe todas as fases!</div>
+    <div class="badge">
+      ⬅️ ➡️ Mover &nbsp;|&nbsp; ⬆️ / Espaço = Pular<br>
+      Pule duas vezes! Pode pular em cima dos inimigos!<br>
+      🚪 Chegue ao portal para avançar de fase!
+    </div>
+    <div id="diffRow">
+      <span class="diff-label">Dificuldade:</span>
+      <button class="diff-btn" data-diff="easy">😊 Fácil</button>
+      <button class="diff-btn active" data-diff="normal">⚡ Normal</button>
+      <button class="diff-btn" data-diff="hard">💀 Difícil</button>
+    </div>
+    <label id="speedrunToggle">
+      <input type="checkbox" id="speedrunCheck"> 🏁 Modo Corrida (sem inimigos, cronômetro)
+    </label>
+    <button class="over-btn" id="startBtn">🌈 Começar Aventura!</button>
+  </div>
+
+  <div class="overlay" id="levelScreen">
+    <div class="over-title" id="lvlTitle">Fase 1 Completa! 🎉</div>
+    <div id="lvlStarsRow" class="stars-row"></div>
+    <div class="over-sub" id="lvlSub"></div>
+    <div class="badge" id="lvlChallenge"></div>
+    <button class="over-btn share-btn" id="shareLvlBtn">📋 Compartilhar Resultado</button>
+    <button class="over-btn" id="nextLvlBtn">➡️ Próxima Fase!</button>
+  </div>
+
+  <div class="overlay" id="winScreen">
+    <div class="over-title">🏆 VOCÊ VENCEU! 🏆</div>
+    <div class="over-sub" id="winSub"></div>
+    <div class="badge">Uau! Você completou todas as 10 fases!<br>A Maria é incrível! 🦄✨🌈</div>
+    <button class="over-btn share-btn" id="shareWinBtn">📋 Compartilhar Vitória!</button>
+    <button class="over-btn" id="winRestartBtn">🌈 Jogar de Novo!</button>
+  </div>
+
+  <div class="overlay" id="gameOverScreen">
+    <div class="over-title">💔 Fim de Jogo!</div>
+    <div class="over-sub" id="goSub"></div>
+    <div class="badge" id="goTip"></div>
+    <button class="over-btn" id="continueBtn" style="display:none">💾 Continuar do Checkpoint!</button>
+    <button class="over-btn" id="restartBtn">🦄 Recomeçar do Início</button>
+  </div>
+
+  <div class="overlay" id="pauseScreen">
+    <div class="over-title">❙❙ Pausado</div>
+    <div class="over-sub">Jogo em pausa — pressione P para continuar</div>
+    <button class="over-btn" id="resumeBtn">▶️ Continuar</button>
+    <button class="over-btn" id="pauseRestartBtn" style="background:linear-gradient(135deg,#888,#555)">🔄 Reiniciar Fase</button>
+  </div>
+
+  <div class="overlay" id="previewScreen">
+    <div class="over-title" id="previewTitle"></div>
+    <div id="previewStarsBest" class="stars-row" style="justify-content:center"></div>
+    <div class="badge" id="previewObjectives"></div>
+    <button class="over-btn" id="previewStartBtn">▶️ Começar fase!</button>
+  </div>
+
+  <div class="overlay" id="statsScreen">
+    <div class="over-title">📊 Suas Estatísticas</div>
+    <div id="statsGrid"></div>
+    <div id="statsStarsRow" class="stars-row" style="justify-content:center;margin-top:4px"></div>
+    <div class="over-sub" id="statsProgress"></div>
+    <button class="over-btn" id="statsCloseBtn" style="background:linear-gradient(135deg,#888,#555)">✖ Fechar</button>
+  </div>
+
+  <div class="overlay" id="levelSelectScreen">
+    <div class="over-title">📜 Selecionar Fase</div>
+    <div id="levelGrid"></div>
+    <button class="over-btn" id="lsCloseBtn" style="background:linear-gradient(135deg,#888,#555)">✖ Fechar</button>
+  </div>
 </div>
 
 <!-- Overlay de rotação: exibido apenas em portrait em dispositivos touch -->
@@ -77,81 +152,7 @@
 <!-- Achievement Toast -->
 <div id="achieveToast"></div>
 
-<!-- Telas de Overlay -->
-<div class="overlay show" id="startScreen">
-  <div class="over-title">🦄 Unicórnio Mágico da Maria ✨</div>
-  <div class="over-sub">Colete moedas, evite inimigos e passe todas as fases!</div>
-  <div class="badge">
-    ⬅️ ➡️ Mover &nbsp;|&nbsp; ⬆️ / Espaço = Pular<br>
-    Pule duas vezes! Pode pular em cima dos inimigos!<br>
-    🚪 Chegue ao portal para avançar de fase!
-  </div>
-  <div id="diffRow">
-    <span class="diff-label">Dificuldade:</span>
-    <button class="diff-btn" data-diff="easy">😊 Fácil</button>
-    <button class="diff-btn active" data-diff="normal">⚡ Normal</button>
-    <button class="diff-btn" data-diff="hard">💀 Difícil</button>
-  </div>
-  <label id="speedrunToggle">
-    <input type="checkbox" id="speedrunCheck"> 🏁 Modo Corrida (sem inimigos, cronômetro)
-  </label>
-  <button class="over-btn" id="startBtn">🌈 Começar Aventura!</button>
-</div>
-
-<div class="overlay" id="levelScreen">
-  <div class="over-title" id="lvlTitle">Fase 1 Completa! 🎉</div>
-  <div id="lvlStarsRow" class="stars-row"></div>
-  <div class="over-sub" id="lvlSub"></div>
-  <div class="badge" id="lvlChallenge"></div>
-  <button class="over-btn share-btn" id="shareLvlBtn">📋 Compartilhar Resultado</button>
-  <button class="over-btn" id="nextLvlBtn">➡️ Próxima Fase!</button>
-</div>
-
-<div class="overlay" id="winScreen">
-  <div class="over-title">🏆 VOCÊ VENCEU! 🏆</div>
-  <div class="over-sub" id="winSub"></div>
-  <div class="badge">Uau! Você completou todas as 10 fases!<br>A Maria é incrível! 🦄✨🌈</div>
-  <button class="over-btn share-btn" id="shareWinBtn">📋 Compartilhar Vitória!</button>
-  <button class="over-btn" id="winRestartBtn">🌈 Jogar de Novo!</button>
-</div>
-
-<div class="overlay" id="gameOverScreen">
-  <div class="over-title">💔 Fim de Jogo!</div>
-  <div class="over-sub" id="goSub"></div>
-  <div class="badge" id="goTip"></div>
-  <button class="over-btn" id="continueBtn" style="display:none">💾 Continuar do Checkpoint!</button>
-  <button class="over-btn" id="restartBtn">🦄 Recomeçar do Início</button>
-</div>
-
-<div class="overlay" id="pauseScreen">
-  <div class="over-title">❙❙ Pausado</div>
-  <div class="over-sub">Jogo em pausa — pressione P para continuar</div>
-  <button class="over-btn" id="resumeBtn">▶️ Continuar</button>
-  <button class="over-btn" id="pauseRestartBtn" style="background:linear-gradient(135deg,#888,#555)">🔄 Reiniciar Fase</button>
-</div>
-
-<div class="overlay" id="previewScreen">
-  <div class="over-title" id="previewTitle"></div>
-  <div id="previewStarsBest" class="stars-row" style="justify-content:center"></div>
-  <div class="badge" id="previewObjectives"></div>
-  <button class="over-btn" id="previewStartBtn">▶️ Começar fase!</button>
-</div>
-
-<div class="overlay" id="statsScreen">
-  <div class="over-title">📊 Suas Estatísticas</div>
-  <div id="statsGrid"></div>
-  <div id="statsStarsRow" class="stars-row" style="justify-content:center;margin-top:4px"></div>
-  <div class="over-sub" id="statsProgress"></div>
-  <button class="over-btn" id="statsCloseBtn" style="background:linear-gradient(135deg,#888,#555)">✖ Fechar</button>
-</div>
-
-<div class="overlay" id="levelSelectScreen">
-  <div class="over-title">📜 Selecionar Fase</div>
-  <div id="levelGrid"></div>
-  <button class="over-btn" id="lsCloseBtn" style="background:linear-gradient(135deg,#888,#555)">✖ Fechar</button>
-</div>
-
-<script src="game.js?v=4.1"></script>
+<script src="game.js?v=4.2"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});

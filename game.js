@@ -1027,8 +1027,8 @@ function updatePlayer(dt) {
   else if (keys.right) { p.vx=spd; p.facing=1; }
   else p.vx=0;
 
-  // landSquash decay
-  if(p.landSquash > 0) p.landSquash = Math.max(0, p.landSquash - 0.1 * dt);
+  // landSquash decay (rápido para não parecer achatado)
+  if(p.landSquash > 0) p.landSquash = Math.max(0, p.landSquash - 0.16 * dt);
 
   // speed trail
   if(p.speedTimer>0 && (keys.left||keys.right)) {
@@ -2048,14 +2048,14 @@ function drawPlayer() {
   ctx.translate(p.x + p.w/2, p.y + p.h/2);
 
   // squash & stretch
-  let _sx = p.facing, _sy = 1;
+  let _sx = p.facing, _sy = 1.05; // leve postura ereta natural
   if (p.landSquash > 0) {
-    _sx = p.facing * (1 + 0.28 * p.landSquash);
-    _sy = 1 - 0.22 * p.landSquash;
+    _sx = p.facing * (1 + 0.22 * p.landSquash);
+    _sy = 0.85 + 0.2 * (1 - p.landSquash); // de 0.85 → 1.05
   } else if (!p.onG) {
     const spd = Math.min(Math.abs(p.vy) / 12, 1);
-    _sx = p.facing * (1 - 0.14 * spd);
-    _sy = 1 + 0.18 * spd;
+    _sx = p.facing * (1 - 0.12 * spd);
+    _sy = 1.05 + 0.16 * spd;
   }
   ctx.scale(_sx, _sy);
 
