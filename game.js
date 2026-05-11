@@ -2815,8 +2815,8 @@ function buildLevelGrid() {
     btn.innerHTML=`<span class="ls-emoji">${unlocked?L.emoji:'🔒'}</span><span class="ls-name">${unlocked?L.name:'Bloqueado'}</span><span class="ls-stars" style="color:#ffe066">${starStr}</span>`;
     btn.disabled=!unlocked;
     if(unlocked) btn.addEventListener('click',()=>{
-      hide('levelSelectScreen');
-      hide('startScreen');
+      ['levelSelectScreen','startScreen','levelScreen','winScreen',
+       'gameOverScreen','pauseScreen','previewScreen','statsScreen'].forEach(hide);
       lvlIdx=i; score=0;
       loadLvl(i);
       gs='playing'; startTimer();
