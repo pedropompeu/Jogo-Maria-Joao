@@ -2,7 +2,7 @@
   "name": "Unicórnio Mágico da Maria",
   "short_name": "Jogo da Maria",
   "description": "Plataformer da Maria — colete moedas, evite inimigos e passe todas as fases!",
-  "start_url": "/",
+  "start_url": "./",
   "display": "fullscreen",
   "orientation": "landscape",
   "background_color": "#0d001a",
@@ -12,13 +12,25 @@
       "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
