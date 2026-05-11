@@ -17,7 +17,7 @@ const BASE_HP = 3; // HP ao iniciar cada fase
 let difficulty    = localStorage.getItem('unicornDiff') || 'normal';
 let speedrunMode  = false;
 let speedrunMs    = 0;
-let unlockedLevels = (()=>{ try{ return JSON.parse(localStorage.getItem('unicornUnlocked')||'[true]'); }catch(e){ return [true]; } })();
+let unlockedLevels = (()=>{ try{ return JSON.parse(localStorage.getItem('unicornUnlocked')||'null') || Array(10).fill(true); }catch(e){ return Array(10).fill(true); } })();
 let levelStars    = (()=>{ try{ return JSON.parse(localStorage.getItem('unicornStars')||'[]'); }catch(e){ return []; } })();
 let _earnedAch    = (()=>{ try{ return JSON.parse(localStorage.getItem('unicornAch')||'[]'); }catch(e){ return []; } })();
 let hurtFlash     = 0;
@@ -1659,7 +1659,7 @@ function drawCloud(x,y,r) {
 const PLAT_THEMES = {
   meadow: (p)=>{ fillRound(p,'#5cb85c','#3a8a3a'); drawGrass(p); },
   forest: (p)=>{ fillRound(p,'#7a4520','#5a2e10'); drawBark(p); },
-  sky:    (p,type)=>{ if(type==='cloud') drawCloudPlat(p); else fillRound(p,'#9cd3f0','#6ab8e0'); },
+  sky:    (p,type)=>{ if(type==='cloud') drawCloudPlat(p); else { fillRound(p,'#f0e0b0','#c8963c'); ctx.strokeStyle='#ffe8a0'; ctx.lineWidth=2; roundRect(p.x,p.y,p.w,p.h,6); ctx.stroke(); } },
   cave:   (p,type)=>{ if(type==='crumble') drawCrystal(p); else fillRound(p,'#440066','#220044'); },
   beach:  (p,type)=>{ const g2=ctx.createLinearGradient(p.x,p.y,p.x,p.y+p.h); g2.addColorStop(0,'#F4D03F'); g2.addColorStop(1,'#D4A017'); fillRound(p,null,null,g2); ctx.fillStyle='#C8A015'; for(let i=0;i<p.w/16;i++){ctx.beginPath();ctx.arc(p.x+8+i*16,p.y+2,3,0,Math.PI*2);ctx.fill();} },
   candy:  (p,type)=>{ if(type==='cloud') drawCloudPlat(p); else { const hue=(p.x/8)%360; const g2=ctx.createLinearGradient(p.x,p.y,p.x+p.w,p.y); g2.addColorStop(0,`hsl(${hue},90%,65%)`); g2.addColorStop(0.5,`hsl(${(hue+60)%360},90%,70%)`); g2.addColorStop(1,`hsl(${(hue+120)%360},90%,65%)`); fillRound(p,null,'rgba(0,0,0,0.2)',g2); ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=2; roundRect(p.x,p.y,p.w,p.h,6); ctx.stroke(); }},
@@ -2479,9 +2479,9 @@ let musicMuted = localStorage.getItem('unicornMute')==='1';
 let _lastMusicIdx = 0;
 let _ambientTO = null;
 const AMBIENT_MAP = {
-  3: ()=>{ SFX.drip(); },  // caverna
-  5: ()=>{ SFX.wave(); },  // praia
-  2: ()=>{ SFX.wind(); },  // nuvens
+  3: ()=>{ SFX.wind(); },  // nuvens
+  4: ()=>{ SFX.drip(); },  // caverna
+  6: ()=>{ SFX.wave(); },  // praia
   8: ()=>{ SFX.wind(); },  // lua
 };
 function playAmbient(idx) {
