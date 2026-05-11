@@ -1,4 +1,4 @@
-const CACHE = 'unicorn-v3';
+const CACHE = 'unicorn-v4';
 const ASSETS = [
   './',
   './index.html',

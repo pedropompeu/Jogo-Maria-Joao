@@ -201,9 +201,9 @@ const LEVELS = [
       [1600,425,110,20,'static'],[1780,345,80,20,'moving',2.5,140],
       [1960,265,100,20,'cloud'],[2140,395,80,20,'crumble'],
       [2320,315,90,20,'static'],[2500,235,100,20,'moving',-1.5,100],
-      [2680,375,80,20,'crumble'],[2860,295,110,20,'cloud'],
+      [2680,375,80,20,'crumble'],[2860,295,110,20,'static'],  // era cloud — criava trap sobre o chão da arena
       [3040,215,90,20,'static'],[3220,355,80,20,'moving',2,120],
-      [3400,275,100,20,'crumble'],[3580,395,90,20,'cloud'],
+      [3400,275,100,20,'crumble'],[3580,395,90,20,'static'],  // era cloud — criava trap sobre o chão da arena
       [3760,455,130,20,'static'],
       [2800,520,1200,80,'static'],     // chão da arena do chefão (x=2800–4000)
     ],
