@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Jogo da Maria - Unicórnio Mágico!</title>
+<meta name="theme-color" content="#2a0050">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jogo da Maria">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css?v=4.0">
+</head>
+<body>
+
+<div id="gameContainer">
+  <div id="ui">
+    <span>🦄 Fase: <b id="lvlDisp">1</b></span>
+    <span>⭐ Moedas: <b id="scoreDisp">0</b></span>
+    <span>⏱️ Tempo: <b id="timeDisp">60</b>s</span>
+    <span>❤️ Vidas: <b id="livesDisp">3</b></span>
+    <span>🏆 Recorde: <b id="bestDisp">0</b></span>
+    <button id="statsBtn" title="Estatísticas">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff88ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+    </button>
+    <button id="lsBtn" title="Selecionar Fase">📜</button>
+    <button id="muteBtn" title="Música">🔊</button>
+    <button id="installBtn" title="Instalar app" onclick="triggerInstall()" style="display:none">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff88ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v13M7 11l5 5 5-5"/><rect x="3" y="18" width="18" height="3" rx="1.5"/>
+      </svg>
+    </button>
+    <button id="fsBtn" title="Tela Cheia">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff88ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+        <line x1="8" y1="21" x2="16" y2="21"></line>
+        <line x1="12" y1="17" x2="12" y2="21"></line>
+      </svg>
+    </button>
+  </div>
+  <canvas id="gameCanvas" width="1000" height="600"></canvas>
+  <div id="controls-hint">⬅️ ➡️ Mover &nbsp;|&nbsp; ⬆️ / ESPAÇO Pular (2x) &nbsp;|&nbsp; P Pausar</div>
+
+  <div id="mobile-controls">
+    <div class="d-pad">
+      <div class="touch-btn" id="btnLeft" aria-label="Esquerda">
+        <svg viewBox="0 0 24 24" width="24" height="24"><polygon points="16,4 16,20 4,12" fill="white"/></svg>
+      </div>
+      <div class="touch-btn" id="btnRight" aria-label="Direita">
+        <svg viewBox="0 0 24 24" width="24" height="24"><polygon points="8,4 8,20 20,12" fill="white"/></svg>
+      </div>
+    </div>
+    <div class="action-buttons">
+      <div class="touch-btn" id="btnJump" aria-label="Pular">
+        <svg viewBox="0 0 24 24" width="24" height="24"><polygon points="4,18 12,6 20,18" fill="white"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay de rotação: exibido apenas em portrait em dispositivos touch -->
+<div id="rotate-overlay">
+  <div id="rotate-content">
+    <svg viewBox="0 0 80 80" width="64" height="64">
+      <rect x="20" y="10" width="40" height="60" rx="6" fill="none" stroke="white" stroke-width="3"/>
+      <path d="M55,5 Q70,20 55,35" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/>
+      <polyline points="50,30 55,35 60,30" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <p>Gire o celular<br>para jogar</p>
+  </div>
+</div>
+
+<!-- Achievement Toast -->
+<div id="achieveToast"></div>
+
+<!-- Telas de Overlay -->
+<div class="overlay show" id="startScreen">
+  <div class="over-title">🦄 Unicórnio Mágico da Maria ✨</div>
+  <div class="over-sub">Colete moedas, evite inimigos e passe todas as fases!</div>
+  <div class="badge">
+    ⬅️ ➡️ Mover &nbsp;|&nbsp; ⬆️ / Espaço = Pular<br>
+    Pule duas vezes! Pode pular em cima dos inimigos!<br>
+    🚪 Chegue ao portal para avançar de fase!
+  </div>
+  <div id="diffRow">
+    <span class="diff-label">Dificuldade:</span>
+    <button class="diff-btn" data-diff="easy">😊 Fácil</button>
+    <button class="diff-btn active" data-diff="normal">⚡ Normal</button>
+    <button class="diff-btn" data-diff="hard">💀 Difícil</button>
+  </div>
+  <label id="speedrunToggle">
+    <input type="checkbox" id="speedrunCheck"> 🏁 Modo Corrida (sem inimigos, cronômetro)
+  </label>
+  <button class="over-btn" id="startBtn">🌈 Começar Aventura!</button>
+</div>
+
+<div class="overlay" id="levelScreen">
+  <div class="over-title" id="lvlTitle">Fase 1 Completa! 🎉</div>
+  <div id="lvlStarsRow" class="stars-row"></div>
+  <div class="over-sub" id="lvlSub"></div>
+  <div class="badge" id="lvlChallenge"></div>
+  <button class="over-btn share-btn" id="shareLvlBtn">📋 Compartilhar Resultado</button>
+  <button class="over-btn" id="nextLvlBtn">➡️ Próxima Fase!</button>
+</div>
+
+<div class="overlay" id="winScreen">
+  <div class="over-title">🏆 VOCÊ VENCEU! 🏆</div>
+  <div class="over-sub" id="winSub"></div>
+  <div class="badge">Uau! Você completou todas as 10 fases!<br>A Maria é incrível! 🦄✨🌈</div>
+  <button class="over-btn share-btn" id="shareWinBtn">📋 Compartilhar Vitória!</button>
+  <button class="over-btn" id="winRestartBtn">🌈 Jogar de Novo!</button>
+</div>
+
+<div class="overlay" id="gameOverScreen">
+  <div class="over-title">💔 Fim de Jogo!</div>
+  <div class="over-sub" id="goSub"></div>
+  <div class="badge" id="goTip"></div>
+  <button class="over-btn" id="continueBtn" style="display:none">💾 Continuar do Checkpoint!</button>
+  <button class="over-btn" id="restartBtn">🦄 Recomeçar do Início</button>
+</div>
+
+<div class="overlay" id="pauseScreen">
+  <div class="over-title">❙❙ Pausado</div>
+  <div class="over-sub">Jogo em pausa — pressione P para continuar</div>
+  <button class="over-btn" id="resumeBtn">▶️ Continuar</button>
+  <button class="over-btn" id="pauseRestartBtn" style="background:linear-gradient(135deg,#888,#555)">🔄 Reiniciar Fase</button>
+</div>
+
+<div class="overlay" id="previewScreen">
+  <div class="over-title" id="previewTitle"></div>
+  <div id="previewStarsBest" class="stars-row" style="justify-content:center"></div>
+  <div class="badge" id="previewObjectives"></div>
+  <button class="over-btn" id="previewStartBtn">▶️ Começar fase!</button>
+</div>
+
+<div class="overlay" id="statsScreen">
+  <div class="over-title">📊 Suas Estatísticas</div>
+  <div id="statsGrid"></div>
+  <div id="statsStarsRow" class="stars-row" style="justify-content:center;margin-top:4px"></div>
+  <div class="over-sub" id="statsProgress"></div>
+  <button class="over-btn" id="statsCloseBtn" style="background:linear-gradient(135deg,#888,#555)">✖ Fechar</button>
+</div>
+
+<div class="overlay" id="levelSelectScreen">
+  <div class="over-title">📜 Selecionar Fase</div>
+  <div id="levelGrid"></div>
+  <button class="over-btn" id="lsCloseBtn" style="background:linear-gradient(135deg,#888,#555)">✖ Fechar</button>
+</div>
+
+<script src="game.js?v=4.1"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+
+  // Prompt de instalação PWA
+  let _installPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _installPrompt = e;
+    const btn = document.getElementById('installBtn');
+    if (btn) btn.style.display = 'flex';
+  });
+  window.addEventListener('appinstalled', () => {
+    const btn = document.getElementById('installBtn');
+    if (btn) btn.style.display = 'none';
+    _installPrompt = null;
+  });
+  function triggerInstall() {
+    if (!_installPrompt) return;
+    _installPrompt.prompt();
+    _installPrompt.userChoice.then(() => { _installPrompt = null; });
+  }
+</script>
+</body>
+</html>
