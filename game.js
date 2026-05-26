@@ -724,9 +724,9 @@ function initBoss(L) {
   const bx = L.bossX || 3500;
   return {
     x:bx, y: L.gY-100, w:80, h:100,
-    vx:1.8, hp:3, maxHp:3,
+    vx:1.2, hp:2, maxHp:2,
     state:'patrol',
-    stateT:0, attackT:120, invT:0,
+    stateT:0, attackT:160, invT:0,
     facing:1, t:0, deadT:0,
     minX:bx-300, maxX:bx+280,
   };
@@ -756,16 +756,11 @@ function updateBoss(dt) {
   boss.x += boss.vx*boss.facing*dt;
   boss.facing = boss.x<boss.minX?1:boss.x+boss.w>boss.maxX?-1:boss.facing;
 
-  // shoot fireballs
+  // shoot fireballs — 1 tiro a cada 3s (fixo)
   boss.attackT-=dt;
-  const phase = 4-boss.hp; // 1,2,3
   if(boss.attackT<=0) {
-    const shots = phase;
-    const interval = 140 - phase*30;
-    boss.attackT = interval;
-    for(let i=0;i<shots;i++) {
-      setTimeout(()=>spawnFireball(), i*180);
-    }
+    boss.attackT = 180;
+    spawnFireball();
   }
 
   // player stomp on boss
@@ -784,7 +779,7 @@ function spawnFireball() {
   const spread = (Math.random()-0.5)*60;
   fireballs.push({
     x: boss.x+boss.w/2, y: boss.y+40,
-    vx: dir*5.5, vy:(p.y-boss.y-40)/200+spread*0.01,
+    vx: dir*3.5, vy:(p.y-boss.y-40)/200+spread*0.01,
     t:0, alive:true
   });
 }
