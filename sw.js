@@ -1,8 +1,9 @@
-const CACHE = 'unicorn-v6';
+const CACHE = 'unicorn-v7';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
+  './characters.js',
   './game.js',
   './manifest.json',
   './icons/icon-192.png',
