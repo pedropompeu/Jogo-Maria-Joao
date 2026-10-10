@@ -1,4 +1,5 @@
 .claude/
+.netlify/
 node_modules/
 android/
 www/

@@ -8,18 +8,40 @@ const CW = 1000, CH = 600;
 const isMobile = window.matchMedia('(pointer: coarse) and (hover: none)').matches;
 const EF = s => `${s}px "Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",serif`;
 
+// ─── SAFE STORAGE ────────────────────────────────────────────────────────────
+// F0 (AUD-03): localStorage lança em aba privada iOS / cookies bloqueados.
+// sGet/sSet tentam localStorage e caem para memória — o jogo nunca trava,
+// só perde persistência entre sessões nesse cenário.
+const _memStore = Object.create(null);
+function sGet(k) {
+  try { const v = localStorage.getItem(k); if (v !== null) return v; } catch(e){}
+  return Object.prototype.hasOwnProperty.call(_memStore, k) ? _memStore[k] : null;
+}
+function sSet(k, v) {
+  v = String(v);
+  try { localStorage.setItem(k, v); return; } catch(e){}
+  try { _memStore[k] = v; } catch(_){}
+}
+function sGetJSON(k, fb) {
+  const raw = sGet(k);
+  if (raw == null) return fb;
+  try { const v = JSON.parse(raw); return (v === null || v === undefined) ? fb : v; }
+  catch(e){ return fb; }
+}
+
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 const G = 0.55, JUMP_V = -13.5, DJ_V = -11, SPD = 4.5;
 const MAX_HP = 5, INV_T = 90, STOMP_V = -10, CLOUD_V = -16;
 const BASE_HP = 3; // HP ao iniciar cada fase
 
 // ─── PROGRESSION / SETTINGS ────────────────────────────────────────────────
-let difficulty    = localStorage.getItem('unicornDiff') || 'normal';
+let difficulty    = sGet('unicornDiff') || 'normal';
 let speedrunMode  = false;
 let speedrunMs    = 0;
-let unlockedLevels = (()=>{ try{ return JSON.parse(localStorage.getItem('unicornUnlocked')||'null') || Array(10).fill(true); }catch(e){ return Array(10).fill(true); } })();
-let levelStars    = (()=>{ try{ return JSON.parse(localStorage.getItem('unicornStars')||'[]'); }catch(e){ return []; } })();
-let _earnedAch    = (()=>{ try{ return JSON.parse(localStorage.getItem('unicornAch')||'[]'); }catch(e){ return []; } })();
+// TODO(F5/T5.2): trocar default tudo-desbloqueado por progressão suave ([true, ...false]).
+let unlockedLevels = sGetJSON('unicornUnlocked', null) || Array(10).fill(true);
+let levelStars    = sGetJSON('unicornStars', []);
+let _earnedAch    = sGetJSON('unicornAch', []);
 let hurtFlash     = 0;
 let lvlDamageCount = 0;
 let totalStomps   = 0;
@@ -366,14 +388,14 @@ const LEVELS = [
 let gs = 'start'; // start|playing|paused|lvlDone|gameOver|win
 let prePauseGs = null;
 let lvlIdx = 0, score = 0;
-let best = +localStorage.getItem('unicornBest') || 0;
+let best = (+sGet('unicornBest')) || 0;
 let lvlTimer = 0;
 
 // ─── MÉTRICAS GLOBAIS ──────────────────────────────────────────────────────
-const _metrics = (()=>{ try{ return JSON.parse(localStorage.getItem('unicornMetrics')||'{}'); }catch(e){ return {}; } })();
+const _metrics = sGetJSON('unicornMetrics', {});
 function metricAdd(key, val=1) {
   _metrics[key] = (_metrics[key]||0) + val;
-  try{ localStorage.setItem('unicornMetrics', JSON.stringify(_metrics)); }catch(e){}
+  sSet('unicornMetrics', JSON.stringify(_metrics));
 }
 let lastTime = 0;
 let _timerAccMs = 0;
@@ -540,7 +562,7 @@ function checkAchievement(id) {
   if(_earnedAch.includes(id)) return;
   const ach=ACHIEVEMENTS.find(a=>a.id===id); if(!ach) return;
   _earnedAch.push(id);
-  localStorage.setItem('unicornAch', JSON.stringify(_earnedAch));
+  sSet('unicornAch', JSON.stringify(_earnedAch));
   _achieveQueue.push(ach);
   if(_achieveTO===null) _showNextAchieve();
 }
@@ -1140,8 +1162,9 @@ function updatePlayer(dt) {
   }
 
   // enemy collision
-  if (p.invT>0) { p.invT-=dt; return; }
+  // F0 (AUD-05): estrela mata mesmo sob invencibilidade — só pula se NÃO há estrela.
   const starActive = p.starTimer>0;
+  if (p.invT>0 && !starActive) { p.invT-=dt; return; }
   for (const e of enems) {
     if (!e.alive) continue;
     if (!overlap(p.x,p.y,p.w,p.h, e.x,e.y,e.w,e.h)) continue;
@@ -1177,6 +1200,7 @@ function stompEnemy(e) {
 }
 
 function takeDamage(dmg, cause='enemy') {
+  if(p.dead) return; // F0 (AUD-05): morte única — sem reset de dieT nem dano em cascata
   lastDeathCause = cause;
   p.hp = Math.max(0, p.hp-dmg);
   ui('livesDisp', p.hp);
@@ -1319,12 +1343,13 @@ function startTimer() { _timerAccMs = 0; }
 function stopTimer()  { _timerAccMs = 0; }
 function updateTimer(rawDt) {
   if(speedrunMode) return;
+  if(p.dead || gs!=='playing') return; // F0 (AUD-05): sem dano repetido após a morte
   _timerAccMs += rawDt;
   if(_timerAccMs >= 1000) {
     _timerAccMs -= 1000;
     lvlTimer--;
+    if(lvlTimer <= 0) { lvlTimer = 0; ui('timeDisp', 0); takeDamage(MAX_HP, 'time'); return; }
     ui('timeDisp', lvlTimer);
-    if(lvlTimer <= 0) takeDamage(MAX_HP, 'time');
   }
 }
 
@@ -1348,7 +1373,7 @@ function completeLevel() {
   metricAdd('coinsTotal', coins.filter(c=>c.col).length);
   metricAdd('timePlayedSec', LEVELS[lvlIdx].time - lvlTimer);
   score += lvlTimer*5;
-  if(score>best){ best=score; localStorage.setItem('unicornBest',best); }
+  if(score>best){ best=score; sSet('unicornBest',best); }
   ui('scoreDisp',score); ui('bestDisp',best);
   SFX.lvlDone(); addShake(5,20);
   spawnStars(portal.x+26, portal.y+36);
@@ -1357,13 +1382,13 @@ function completeLevel() {
   const stars = calcStars(lvlIdx);
   if(!levelStars[lvlIdx] || stars > levelStars[lvlIdx]) {
     levelStars[lvlIdx]=stars;
-    localStorage.setItem('unicornStars', JSON.stringify(levelStars));
+    sSet('unicornStars', JSON.stringify(levelStars));
   }
 
   // unlock next level
   if(lvlIdx+1 < LEVELS.length && !unlockedLevels[lvlIdx+1]) {
     unlockedLevels[lvlIdx+1]=true;
-    localStorage.setItem('unicornUnlocked', JSON.stringify(unlockedLevels));
+    sSet('unicornUnlocked', JSON.stringify(unlockedLevels));
   }
 
   // per-level record
@@ -2051,7 +2076,7 @@ const MELODIES=[
   {bpm:150,notes:[N.c6,N.b5,N.a5,N.b5,N.c6,N.c6,N.b5,N.c6,N.b5,N.a5,N.g5,N.a5,N.b5,N.c6,N.b5,N.r]},
 ];
 let _musicNodes=[], _musicTO=null, _curMelody=null;
-let musicMuted = localStorage.getItem('unicornMute')==='1';
+let musicMuted = sGet('unicornMute')==='1';
 let _lastMusicIdx = 0;
 let _ambientTO = null;
 const AMBIENT_MAP = {
@@ -2112,16 +2137,16 @@ function _schedMusic() {
 }
 
 // ─── COSMETICS ─────────────────────────────────────────────────────────────
-let cosmetics = JSON.parse(localStorage.getItem('unicornCosmetics')||'{}');
+let cosmetics = sGetJSON('unicornCosmetics', {});
 function unlockCosmetic(k) {
-  if(!cosmetics[k]){ cosmetics[k]=true; localStorage.setItem('unicornCosmetics',JSON.stringify(cosmetics)); }
+  if(!cosmetics[k]){ cosmetics[k]=true; sSet('unicornCosmetics',JSON.stringify(cosmetics)); }
 }
 
 // ─── PER-LEVEL RECORDS ─────────────────────────────────────────────────────
-let lvlBests = JSON.parse(localStorage.getItem('unicornLvlBests')||'[]');
+let lvlBests = sGetJSON('unicornLvlBests', []);
 function saveLvlBest(idx, time) {
   const prev=lvlBests[idx]||0;
-  if(time>prev){ lvlBests[idx]=time; localStorage.setItem('unicornLvlBests',JSON.stringify(lvlBests)); return true; }
+  if(time>prev){ lvlBests[idx]=time; sSet('unicornLvlBests',JSON.stringify(lvlBests)); return true; }
   return false;
 }
 
@@ -2458,7 +2483,7 @@ document.querySelectorAll('.diff-btn').forEach(btn=>{
     document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     difficulty=btn.dataset.diff;
-    localStorage.setItem('unicornDiff',difficulty);
+    sSet('unicornDiff',difficulty);
   });
 });
 
@@ -2467,8 +2492,8 @@ function shareText(text) {
   if(navigator.clipboard) {
     navigator.clipboard.writeText(text).then(()=>{
       spawnFloat(CW/2, CH/2,'📋 Copiado!','#44ffcc');
-    });
-  } else { prompt('Copie o resultado:',text); }
+    }).catch(()=>{ try{ prompt('Copie o resultado:',text); }catch(_){} });
+  } else { try{ prompt('Copie o resultado:',text); }catch(_){} }
 }
 document.getElementById('shareLvlBtn')?.addEventListener('click',()=>{
   const st=levelStars[lvlIdx]||0;
@@ -2482,6 +2507,7 @@ document.getElementById('shareWinBtn')?.addEventListener('click',()=>{
 
 function showLevelPreview(idx) {
   const L = LEVELS[idx];
+  if(!L) return; // F0 (AUD-05): sem fase além da última (winScreen cobre o final)
   const best = levelStars[idx] || 0;
   document.getElementById('previewTitle').textContent = `${L.emoji} ${L.name}`;
   document.getElementById('previewStarsBest').innerHTML =
@@ -2498,6 +2524,7 @@ function showLevelPreview(idx) {
 
 document.getElementById('nextLvlBtn')?.addEventListener('click',()=>{
   hide('levelScreen');
+  if(lvlIdx+1 >= LEVELS.length) return; // F0 (AUD-05): última fase termina em winScreen
   lvlIdx++;
   showLevelPreview(lvlIdx);
 });
@@ -2532,7 +2559,7 @@ function updateMuteBtn() { if(muteBtn) muteBtn.textContent = musicMuted ? '🔇'
 updateMuteBtn();
 muteBtn?.addEventListener('click', ()=>{
   musicMuted = !musicMuted;
-  localStorage.setItem('unicornMute', musicMuted ? '1' : '0');
+  sSet('unicornMute', musicMuted ? '1' : '0');
   updateMuteBtn();
   if(musicMuted) { stopMusic(); }
   else if(gs==='playing') { playMusic(_lastMusicIdx); }

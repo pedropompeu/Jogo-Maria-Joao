@@ -1,8 +1,11 @@
-const CACHE = 'unicorn-v7';
+// F0 (AUD-02): design-tokens.css incluído — vinha via @import e o tema quebrava
+// offline. Bump v7→v8 invalida o cache antigo nos clientes.
+const CACHE = 'unicorn-v8';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
+  './brand/design-tokens.css',
   './characters.js',
   './game.js',
   './manifest.json',
@@ -28,7 +31,9 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(cached => {
+    // F0 (AUD-02): ignoreSearch faz game.js?v=4.5 acertar o cache de ./game.js
+    // (o ?v= de cache-busting antes gerava miss sempre e matava o offline).
+    caches.match(e.request, { ignoreSearch: true }).then(cached => {
       if (cached) return cached;
       return fetch(e.request).catch(() => caches.match('./index.html'));
     })
