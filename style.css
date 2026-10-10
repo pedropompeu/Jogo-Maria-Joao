@@ -7,6 +7,17 @@
   outline: 2px solid #ff88ff; outline-offset: 3px;
 }
 
+/* F6: ícones SVG à prova de tofu — herdam o tamanho do texto */
+.ico { width: 1.15em; height: 1.15em; vertical-align: -0.22em; }
+#ui .ico { width: 16px; height: 16px; vertical-align: -3px; }
+#ui button .ico { width: 18px; height: 18px; vertical-align: middle; }
+.over-title .ico { width: 0.95em; height: 0.95em; }
+.over-btn .ico, .diff-btn .ico { width: 1.1em; height: 1.1em; vertical-align: -0.18em; }
+#speedrunToggle .ico, .badge .ico { width: 1.1em; height: 1.1em; }
+.ls-emoji .ico { width: 1.6rem; height: 1.6rem; }
+.stat-icon .ico { width: 1.7rem; height: 1.7rem; }
+#achieveToast .ico { width: 1.2em; height: 1.2em; }
+
 body {
   background: var(--primitive-grad-bg);
   display: flex; justify-content: center; align-items: center;

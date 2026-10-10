@@ -225,14 +225,15 @@ function updateParticles(dt) {
 
 // ─── ACHIEVEMENTS ──────────────────────────────────────────────────────────
 const ACHIEVEMENTS = [
-  {id:'first_stomp', icon:'👟', title:'Primeira Pisada!',     desc:'Pise em cima de um inimigo'},
-  {id:'combo5',      icon:'🔥', title:'Combo Impressionante!',desc:'Faça um combo de x5 ou mais'},
-  {id:'collector',   icon:'⭐', title:'Caçadora de Moedas!',  desc:'Colete todas as moedas da fase'},
-  {id:'speedster',   icon:'⚡', title:'Raio da Maria!',       desc:'Complete fase com 60s+ sobrando'},
-  {id:'no_damage',   icon:'🛡️', title:'Intocável!',           desc:'Complete fase sem levar dano'},
-  {id:'boss_slayer', icon:'🐉', title:'Domadora de Dragões!', desc:'Derrote o chefe'},
-  {id:'heart_saver', icon:'❤️', title:'Cheia de Amor!',       desc:'Colete todos os corações da fase'},
-  {id:'all20',       icon:'🌈', title:'Aventura Completa!',   desc:'Complete todas as 20 fases'},
+  // F6: icon = chave do icons.js, ou 1 caractere seguro (★⚡❤ renderizam em toda fonte)
+  {id:'first_stomp', icon:'footprint', title:'Primeira Pisada!',     desc:'Pise em cima de um inimigo'},
+  {id:'combo5',      icon:'flame',     title:'Combo Impressionante!',desc:'Faça um combo de x5 ou mais'},
+  {id:'collector',   icon:'★',         title:'Caçadora de Moedas!',  desc:'Colete todas as moedas da fase'},
+  {id:'speedster',   icon:'⚡',         title:'Raio da Maria!',       desc:'Complete fase com 60s+ sobrando'},
+  {id:'no_damage',   icon:'shield',    title:'Intocável!',           desc:'Complete fase sem levar dano'},
+  {id:'boss_slayer', icon:'dragon',    title:'Domadora de Dragões!', desc:'Derrote o chefe'},
+  {id:'heart_saver', icon:'❤',         title:'Cheia de Amor!',       desc:'Colete todos os corações da fase'},
+  {id:'all20',       icon:'rainbow',   title:'Aventura Completa!',   desc:'Complete todas as 20 fases'},
 ];
 let _achieveQueue = [];
 let _achieveTO   = null;
@@ -248,7 +249,7 @@ function _showNextAchieve() {
   if(!_achieveQueue.length){ _achieveTO=null; return; }
   const ach=_achieveQueue.shift();
   const el=document.getElementById('achieveToast');
-  el.textContent=`${ach.icon} Conquista: ${ach.title}`;
+  el.innerHTML=`${ach.icon.length===1?ach.icon:icon(ach.icon)} Conquista: ${ach.title}`;
   el.classList.add('show');
   _achieveTO=setTimeout(()=>{
     el.classList.remove('show');
@@ -371,11 +372,11 @@ function drawFloatTexts() {
 // ─── POWER-UPS ─────────────────────────────────────────────────────────────
 // F3: placa de estreia — 1ª vez que cada power-up entra na tela, explica o
 // que faz (1x por aventura). Criança aprende vendo, sem ler manual.
-const PUP_HELP = {
-  star:  '⭐ Invencível!',
-  speed: '🍄 Turbo veloz!',
-  shield:'🛡️ Bloqueia 1 dano!',
-  magnet:'🧲 Puxa as moedas!',
+const PUP_HELP = { // F6: só palavras — emoji no canvas vira tofu sem fonte colorida
+  star:  'Invencível!',
+  speed: 'Turbo veloz!',
+  shield:'Bloqueia 1 dano!',
+  magnet:'Puxa as moedas!',
 };
 let _seenPup = {};
 function updatePups(dt) {
@@ -911,7 +912,7 @@ function takeDamage(dmg, cause='enemy') {
   lvlDamageCount++;
   p.combo=0;
   spawnParticles(p.x+p.w/2, p.y+p.h/2,'#ff4466',12);
-  spawnFloat(p.x+p.w/2, p.y-10, '💔 Ai!', '#ff4466');
+  spawnFloat(p.x+p.w/2, p.y-10, 'Ai!', '#ff4466');
   if (p.hp<=0) { p.dead=true; p.dieT=60; }
   else { p.invT=INV_T; p.vy=-8; }
 }
@@ -927,7 +928,7 @@ function fallDeath() {
   } else {
     respawnAtCheckpoint();
     spawnParticles(p.x+p.w/2, p.y+p.h/2,'#ff4466',14);
-    spawnFloat(p.x+22, p.y-10, '💔 Ai!', '#ff4466');
+    spawnFloat(p.x+22, p.y-10, 'Ai!', '#ff4466');
     p.invT=INV_T;
   }
 }
@@ -950,14 +951,14 @@ function triggerDeath() {
   gs='gameOver';
   metricAdd('deaths');
   const sv = getBestSave();
-  document.getElementById('goSub').textContent=`Quase! Fase ${lvlIdx+1} — ${score} pontos 🦄`;
+  document.getElementById('goSub').innerHTML=`Quase! Fase ${lvlIdx+1} — ${score} pontos ${icon('unicorn')}`;
   const tip = DEATH_TIPS[lastDeathCause] || LEVELS[lvlIdx].tip;
   document.getElementById('goTip').textContent = tip;
   const contBtn = document.getElementById('continueBtn');
   contBtn.style.display = sv ? 'block' : 'none';
   contBtn.onclick = () => { hide('gameOverScreen'); continueFromCp(sv); };
   // "recomeçar" agora reinicia a FASE atual (não o jogo todo)
-  document.getElementById('restartBtn').textContent = '🦄 Recomeçar esta fase';
+  document.getElementById('restartBtn').innerHTML = `${icon('unicorn')} Recomeçar esta fase`;
   show('gameOverScreen');
 }
 
@@ -1109,18 +1110,18 @@ function completeLevel() {
   if (lvlIdx>=LEVELS.length-1) {
     gs='win'; stopMusic();
     startCelebration();
-    document.getElementById('winSub').textContent=`🦄 INCRÍVEL! Pontuação final: ${score} ⭐`;
+    document.getElementById('winSub').innerHTML=`${icon('unicorn')} INCRÍVEL! Pontuação final: ${score} ⭐`;
     show('winScreen');
   } else {
     gs='lvlDone';
     const L=LEVELS[lvlIdx];
-    document.getElementById('lvlTitle').textContent=`${L.emoji} ${L.name} Completa! 🎉`;
+    document.getElementById('lvlTitle').innerHTML=`${phaseIcon(lvlIdx)} ${L.name} Completa! ${icon('party')}`;
     document.getElementById('lvlStarsRow').innerHTML = starsHtml(stars);
-    const bonusStr = `+${lvlTimer*5} bônus de tempo!${isNewBest?' 🏅 Novo recorde!':''}`;
+    const bonusStr = `+${lvlTimer*5} bônus de tempo!${isNewBest?' ★ Novo recorde!':''}`;
     document.getElementById('lvlSub').textContent=bonusStr;
     const nextL=LEVELS[lvlIdx+1];
-    document.getElementById('lvlChallenge').textContent=
-      nextL ? `Próxima: ${nextL.emoji} ${nextL.name}\n${nextL.tip}` : '';
+    document.getElementById('lvlChallenge').innerHTML=
+      nextL ? `Próxima: ${phaseIcon(lvlIdx+1)} ${nextL.name}<br>${nextL.tip}` : '';
     show('levelScreen');
   }
 }
@@ -1732,11 +1733,16 @@ function drawHUD() {
   ctx.textAlign='left';
   ctx.fillStyle='#ffe066';
   ctx.font='bold 20px sans-serif';
-  ctx.fillText(`⭐ ${score}`, 14, cy);
+  ctx.fillText(`★ ${score}`, 14, cy);
+  // F6: reloginho desenhado — ⏱️ no canvas vira tofu sem fonte emoji
+  ctx.strokeStyle='rgba(255,255,255,0.9)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(158, cy, 8, 0, Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(158, cy); ctx.lineTo(158, cy-5);
+  ctx.moveTo(158, cy); ctx.lineTo(162, cy+2); ctx.stroke();
   ctx.fillStyle='rgba(255,255,255,0.75)';
   ctx.font='bold 15px sans-serif';
   const timeStr = speedrunMode ? ((speedrunMs/1000).toFixed(1)+'s') : (lvlTimer+'s');
-  ctx.fillText(`⏱️ ${timeStr}`, 150, cy);
+  ctx.fillText(timeStr, 170, cy);
   // lives as big hearts on the right
   const nHp = Math.min(p.hp, MAX_HP);
   const hpX = CW - 14 - nHp * 26;
@@ -2113,7 +2119,7 @@ function buildLevelGrid() {
     const st=levelStars[i]||0;
     const starStr='★'.repeat(st)+'☆'.repeat(3-st);
     const unlocked=!!unlockedLevels[i];
-    btn.innerHTML=`<span class="ls-emoji">${unlocked?L.emoji:'🔒'}</span><span class="ls-name">${unlocked?L.name:'Bloqueado'}</span><span class="ls-stars" style="color:#ffe066">${starStr}</span>`;
+    btn.innerHTML=`<span class="ls-emoji">${unlocked?phaseIcon(i):icon('lock')}</span><span class="ls-name">${unlocked?L.name:'Bloqueado'}</span><span class="ls-stars" style="color:#ffe066">${starStr}</span>`;
     btn.disabled=!unlocked;
     if(unlocked) btn.addEventListener('click',()=>{
       ['levelSelectScreen','startScreen','levelScreen','winScreen',
@@ -2144,18 +2150,18 @@ function openStats() {
   };
 
   const stats = [
-    { icon:'🏆', val: phasesCompleted + '/' + LEVELS.length, label:'Fases' },
-    { icon:'⭐', val: totalStars + '/' + maxStars,            label:'Estrelas' },
-    { icon:'💀', val: m.deaths||0,                            label:'Mortes' },
-    { icon:'👟', val: m.stomps||0,                            label:'Stomps' },
-    { icon:'🪙', val: m.coinsTotal||0,                        label:'Moedas' },
-    { icon:'⏱️', val: fmtTime(m.timePlayedSec||0),            label:'Tempo' },
+    { icon:'trophy', val: phasesCompleted + '/' + LEVELS.length, label:'Fases' },
+    { icon:'★',      val: totalStars + '/' + maxStars,            label:'Estrelas' },
+    { icon:'skull',  val: m.deaths||0,                            label:'Mortes' },
+    { icon:'footprint', val: m.stomps||0,                         label:'Stomps' },
+    { icon:'coin',   val: m.coinsTotal||0,                        label:'Moedas' },
+    { icon:'clock',  val: fmtTime(m.timePlayedSec||0),            label:'Tempo' },
   ];
 
   const grid = document.getElementById('statsGrid');
   grid.innerHTML = stats.map(s=>
     `<div class="stat-card">
-      <div class="stat-icon">${s.icon}</div>
+      <div class="stat-icon">${s.icon.length===1?s.icon:icon(s.icon)}</div>
       <div class="stat-val">${s.val}</div>
       <div class="stat-label">${s.label}</div>
     </div>`
@@ -2168,7 +2174,7 @@ function openStats() {
 
   const prog = document.getElementById('statsProgress');
   const pct = Math.round(totalStars/maxStars*100);
-  prog.textContent = `${pct}% completo — continue, Maria! 🦄`;
+  prog.innerHTML = `${pct}% completo — continue, Maria! ${icon('unicorn')}`;
 
   show('statsScreen');
 }
@@ -2191,7 +2197,7 @@ document.querySelectorAll('.diff-btn').forEach(btn=>{
 function shareText(text) {
   if(navigator.clipboard) {
     navigator.clipboard.writeText(text).then(()=>{
-      spawnFloat(CW/2, CH/2,'📋 Copiado!','#44ffcc');
+      spawnFloat(CW/2, CH/2,'Copiado ✓','#44ffcc');
     }).catch(()=>{ try{ prompt('Copie o resultado:',text); }catch(_){} });
   } else { try{ prompt('Copie o resultado:',text); }catch(_){} }
 }
@@ -2209,7 +2215,7 @@ function showLevelPreview(idx) {
   const L = LEVELS[idx];
   if(!L) return; // F0 (AUD-05): sem fase além da última (winScreen cobre o final)
   const best = levelStars[idx] || 0;
-  document.getElementById('previewTitle').textContent = `${L.emoji} ${L.name}`;
+  document.getElementById('previewTitle').innerHTML = `${phaseIcon(idx)} ${L.name}`;
   document.getElementById('previewStarsBest').innerHTML =
     [0,1,2].map(i=>`<span style="opacity:${i<best?1:0.25};filter:${i<best?'':'grayscale(1)'}">⭐</span>`).join('');
   const coinTarget = Math.ceil((L.coins?.length||0) * 0.6);
@@ -2255,7 +2261,7 @@ document.getElementById('winRestartBtn')?.addEventListener('click',()=>{
 
 // ─── MUTE BUTTON ───────────────────────────────────────────────────────────
 const muteBtn = document.getElementById('muteBtn');
-function updateMuteBtn() { if(muteBtn) muteBtn.textContent = musicMuted ? '🔇' : '🔊'; }
+function updateMuteBtn() { if(muteBtn) muteBtn.innerHTML = icon(musicMuted ? 'speakerOff' : 'speaker'); }
 updateMuteBtn();
 muteBtn?.addEventListener('click', ()=>{
   musicMuted = !musicMuted;

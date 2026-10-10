@@ -1,12 +1,14 @@
-// F5: levels-data.js entra no cache (vira dependência via ES module).
-// Bump v8→v9 entrega F1-F5 a quem cacheou o v8.
-const CACHE = 'unicorn-v9';
+// F6: icons.js entra no cache (dependência nova). Bump v9→v10.
+// REGRA: todo release que toca arquivo cacheado exige bump — sem ele,
+// clientes com SW instalado ficam no stale eterno (AUD-02).
+const CACHE = 'unicorn-v10';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './brand/design-tokens.css',
   './characters.js',
+  './icons.js',
   './levels-data.js',
   './game.js',
   './manifest.json',

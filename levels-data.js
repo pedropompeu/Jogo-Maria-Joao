@@ -9,7 +9,7 @@ export const LEVELS = [
   // Plataformas sobem gradualmente — cada degrau exige pulo maior.
   // Solo contínuo: nunca punimos quem ainda está aprendendo.
   { name:'Primeiros Passos', emoji:'🌟', time:300, lw:2300, gY:520,
-    theme:'meadow', tip:'Anda, pula 2x e entra no portal! 🌀',
+    theme:'meadow', tip:'Anda, pula 2x e entra no portal!',
     bg:['#87CEEB','#cce8f4'],
     plats:[
       [0,520,2300,80,'static'],        // solo contínuo (sem queda)
