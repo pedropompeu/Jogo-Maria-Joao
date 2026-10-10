@@ -44,7 +44,7 @@
     </button>
   </div>
 
-  <canvas id="gameCanvas" width="1000" height="600"></canvas>
+  <canvas id="gameCanvas" width="1000" height="600" role="img" aria-label="Jogo do unicórnio: use as setas do teclado ou os botões na tela para mover e pular"></canvas>
   <div id="controls-hint">← → Mover &nbsp;|&nbsp; ↑ / ESPAÇO Pular (2x) &nbsp;|&nbsp; P Pausar</div>
 
   <div id="mobile-controls">
@@ -64,7 +64,7 @@
   </div>
 
   <!-- Telas de Overlay — dentro do gameContainer para seguir o canvas -->
-  <div class="overlay show" id="startScreen">
+  <div class="overlay show" id="startScreen" role="dialog" aria-modal="true" aria-label="Início da aventura">
     <div class="over-title">🦄 Unicórnio Mágico da Maria ✨</div>
     <div class="over-sub">Colete moedas, evite inimigos e passe todas as fases!</div>
     <div class="badge">
@@ -84,7 +84,7 @@
     </label>
   </div>
 
-  <div class="overlay" id="levelScreen">
+  <div class="overlay" id="levelScreen" role="dialog" aria-modal="true" aria-label="Fase completa">
     <div class="over-title" id="lvlTitle">Fase 1 Completa! 🎉</div>
     <div id="lvlStarsRow" class="stars-row"></div>
     <div class="over-sub" id="lvlSub"></div>
@@ -93,7 +93,7 @@
     <button class="over-btn" id="nextLvlBtn">➡️ Próxima Fase!</button>
   </div>
 
-  <div class="overlay" id="winScreen">
+  <div class="overlay" id="winScreen" role="dialog" aria-modal="true" aria-label="Você venceu o jogo">
     <div class="over-title">🏆 VOCÊ VENCEU! 🏆</div>
     <div class="over-sub" id="winSub"></div>
     <div class="badge">Uau! Você completou todas as 10 fases!<br>A Maria é incrível! 🦄✨🌈</div>
@@ -101,29 +101,29 @@
     <button class="over-btn" id="winRestartBtn">🌈 Jogar de Novo!</button>
   </div>
 
-  <div class="overlay" id="gameOverScreen">
+  <div class="overlay" id="gameOverScreen" role="dialog" aria-modal="true" aria-label="Fim de jogo">
     <div class="over-title">💔 Fim de Jogo!</div>
-    <div class="over-sub" id="goSub"></div>
+    <div class="over-sub" id="goSub" aria-live="polite"></div>
     <div class="badge" id="goTip"></div>
     <button class="over-btn" id="continueBtn" style="display:none">💾 Continuar do Checkpoint!</button>
     <button class="over-btn" id="restartBtn">🦄 Recomeçar do Início</button>
   </div>
 
-  <div class="overlay" id="pauseScreen">
+  <div class="overlay" id="pauseScreen" role="dialog" aria-modal="true" aria-label="Jogo pausado">
     <div class="over-title">❙❙ Pausado</div>
-    <div class="over-sub">Jogo em pausa — pressione P para continuar</div>
+    <div class="over-sub">Pausa pra respirar ✨ — P ou toque em Continuar</div>
     <button class="over-btn" id="resumeBtn">▶️ Continuar</button>
     <button class="over-btn" id="pauseRestartBtn" style="background:linear-gradient(135deg,#888,#555)">🔄 Reiniciar Fase</button>
   </div>
 
-  <div class="overlay" id="previewScreen">
+  <div class="overlay" id="previewScreen" role="dialog" aria-modal="true" aria-label="Prévia da fase">
     <div class="over-title" id="previewTitle"></div>
     <div id="previewStarsBest" class="stars-row" style="justify-content:center"></div>
     <div class="badge" id="previewObjectives"></div>
     <button class="over-btn" id="previewStartBtn">▶️ Começar fase!</button>
   </div>
 
-  <div class="overlay" id="statsScreen">
+  <div class="overlay" id="statsScreen" role="dialog" aria-modal="true" aria-label="Suas estatísticas">
     <div class="over-title">📊 Suas Estatísticas</div>
     <div id="statsGrid"></div>
     <div id="statsStarsRow" class="stars-row" style="justify-content:center;margin-top:4px"></div>
@@ -131,7 +131,7 @@
     <button class="over-btn" id="statsCloseBtn" style="background:linear-gradient(135deg,#888,#555)">✖ Fechar</button>
   </div>
 
-  <div class="overlay" id="levelSelectScreen">
+  <div class="overlay" id="levelSelectScreen" role="dialog" aria-modal="true" aria-label="Selecionar fase">
     <div class="over-title">📜 Selecionar Fase</div>
     <div id="levelGrid"></div>
     <button class="over-btn" id="lsCloseBtn" style="background:linear-gradient(135deg,#888,#555)">✖ Fechar</button>
@@ -151,7 +151,7 @@
 </div>
 
 <!-- Achievement Toast -->
-<div id="achieveToast"></div>
+<div id="achieveToast" role="status" aria-live="polite"></div>
 
 <script src="characters.js?v=1.0"></script>
 <script src="game.js?v=4.5"></script>

@@ -1242,7 +1242,7 @@ function takeDamage(dmg, cause='enemy') {
   lvlDamageCount++;
   p.combo=0;
   spawnParticles(p.x+p.w/2, p.y+p.h/2,'#ff4466',12);
-  spawnFloat(p.x+p.w/2, p.y-10, '-1 Vida', '#ff4466');
+  spawnFloat(p.x+p.w/2, p.y-10, '💔 Ai!', '#ff4466');
   if (p.hp<=0) { p.dead=true; p.dieT=60; }
   else { p.invT=INV_T; p.vy=-8; }
 }
@@ -1258,7 +1258,7 @@ function fallDeath() {
   } else {
     respawnAtCheckpoint();
     spawnParticles(p.x+p.w/2, p.y+p.h/2,'#ff4466',14);
-    spawnFloat(p.x+22, p.y-10, '-1 Vida', '#ff4466');
+    spawnFloat(p.x+22, p.y-10, '💔 Ai!', '#ff4466');
     p.invT=INV_T;
   }
 }
@@ -1281,7 +1281,7 @@ function triggerDeath() {
   gs='gameOver';
   metricAdd('deaths');
   const sv = getBestSave();
-  document.getElementById('goSub').textContent=`Fase ${lvlIdx+1} — Pontuação: ${score}`;
+  document.getElementById('goSub').textContent=`Quase! Fase ${lvlIdx+1} — ${score} pontos 🦄`;
   const tip = DEATH_TIPS[lastDeathCause] || LEVELS[lvlIdx].tip;
   document.getElementById('goTip').textContent = tip;
   const contBtn = document.getElementById('continueBtn');
@@ -1440,7 +1440,7 @@ function completeLevel() {
   if (lvlIdx>=LEVELS.length-1) {
     gs='win'; stopMusic();
     startCelebration();
-    document.getElementById('winSub').textContent=`Pontuação Final: ${score} ⭐`;
+    document.getElementById('winSub').textContent=`🦄 INCRÍVEL! Pontuação final: ${score} ⭐`;
     show('winScreen');
   } else {
     gs='lvlDone';
@@ -2052,35 +2052,27 @@ function drawHUD() {
   ctx.fillText(L.name, CW-10, CH-14);
 
   // ── HUD inline (mobile only) ──────────────────────────────────────────────
+  // F4: minimal — ⭐ moedas e ❤️ vidas grandes; fase/recorde moram no pause/stats.
   if(!isMobile) return;
-  const barH = 32;
+  const barH = 40;
   ctx.fillStyle='rgba(0,0,0,0.45)';
-  roundRectCtx(6, 6, CW-12, barH, 8);
+  roundRectCtx(6, 6, CW-12, barH, 10);
 
-  ctx.font='bold 15px sans-serif';
   ctx.textBaseline='middle';
   const cy = 6 + barH/2;
-  const items = [
-    { label:'Fase', val: lvlIdx+1 },
-    { label:'Moedas', val: score },
-    { label:'Tempo', val: speedrunMode ? ((speedrunMs/1000).toFixed(1)+'s') : (lvlTimer+'s') },
-    { label:'Recorde', val: best },
-  ];
-  const colW = (CW-12) / items.length;
-  items.forEach((item, i) => {
-    const x = 12 + i * colW;
-    ctx.textAlign='left';
-    ctx.fillStyle='rgba(255,255,255,0.5)';
-    ctx.font='10px sans-serif';
-    ctx.fillText(item.label, x, cy - 7);
-    ctx.fillStyle='#ffe066';
-    ctx.font='bold 14px sans-serif';
-    ctx.fillText(item.val, x, cy + 6);
-  });
-  // lives as hearts on the right
-  const hpX = CW - 12 - Math.min(p.hp, MAX_HP) * 18;
-  for(let i=0; i<Math.min(p.hp, MAX_HP); i++) {
-    drawHeart(hpX + i*18, cy, 6, '#ff4466');
+  ctx.textAlign='left';
+  ctx.fillStyle='#ffe066';
+  ctx.font='bold 20px sans-serif';
+  ctx.fillText(`⭐ ${score}`, 14, cy);
+  ctx.fillStyle='rgba(255,255,255,0.75)';
+  ctx.font='bold 15px sans-serif';
+  const timeStr = speedrunMode ? ((speedrunMs/1000).toFixed(1)+'s') : (lvlTimer+'s');
+  ctx.fillText(`⏱️ ${timeStr}`, 150, cy);
+  // lives as big hearts on the right
+  const nHp = Math.min(p.hp, MAX_HP);
+  const hpX = CW - 14 - nHp * 26;
+  for(let i=0; i<nHp; i++) {
+    drawHeart(hpX + i*26, cy, 9, '#ff4466');
   }
   ctx.textBaseline='alphabetic';
 }
@@ -2354,7 +2346,8 @@ function loop(ts) {
 
 // ─── UI HELPERS ────────────────────────────────────────────────────────────
 function ui(id,val){ const el=document.getElementById(id); if(el) el.textContent=val; }
-function show(id){ const el=document.getElementById(id); if(el){el.classList.remove('show');void el.offsetWidth;el.classList.add('show');} }
+// F4: diálogo abre com foco no CTA — teclado/leitor entram na tela certa
+function show(id){ const el=document.getElementById(id); if(el){el.classList.remove('show');void el.offsetWidth;el.classList.add('show'); const btn=el.querySelector('.over-btn:not([style*="none"])'); if(btn && btn.offsetParent!==null) btn.focus({preventScroll:true});} }
 function hide(id){ const el=document.getElementById(id); if(el) el.classList.remove('show'); }
 
 // ─── INPUT HANDLERS ────────────────────────────────────────────────────────

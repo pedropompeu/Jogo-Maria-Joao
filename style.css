@@ -2,6 +2,11 @@
 
 * { margin:0; padding:0; box-sizing:border-box; }
 
+/* F4: foco visível real (BRAND.md §07) — teclado enxerga onde está */
+:focus-visible {
+  outline: 2px solid #ff88ff; outline-offset: 3px;
+}
+
 body {
   background: var(--primitive-grad-bg);
   display: flex; justify-content: center; align-items: center;
