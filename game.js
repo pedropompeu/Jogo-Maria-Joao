@@ -68,7 +68,7 @@ const LEVELS = [
   // Plataformas sobem gradualmente — cada degrau exige pulo maior.
   // Solo contínuo: nunca punimos quem ainda está aprendendo.
   { name:'Primeiros Passos', emoji:'🌟', time:300, lw:2300, gY:520,
-    theme:'meadow', tip:'Use as setas para mover e pressione pulo duas vezes!',
+    theme:'meadow', tip:'Anda, pula 2x e entra no portal! 🌀',
     bg:['#87CEEB','#cce8f4'],
     plats:[
       [0,520,2300,80,'static'],        // solo contínuo (sem queda)
@@ -675,8 +675,8 @@ const SFX = {
 };
 
 // ─── FLOAT TEXTS ───────────────────────────────────────────────────────────
-function spawnFloat(x, y, text, color='#ffee00') {
-  floatTexts.push({x, y, text, color, life:1, vy:-1.8, size:22});
+function spawnFloat(x, y, text, color='#ffee00', life=1) {
+  floatTexts.push({x, y, text, color, life, vy:-1.8, size:22});
 }
 function updateFloatTexts(dt) {
   for(let i=floatTexts.length-1;i>=0;i--) {
@@ -700,9 +700,22 @@ function drawFloatTexts() {
 }
 
 // ─── POWER-UPS ─────────────────────────────────────────────────────────────
+// F3: placa de estreia — 1ª vez que cada power-up entra na tela, explica o
+// que faz (1x por aventura). Criança aprende vendo, sem ler manual.
+const PUP_HELP = {
+  star:  '⭐ Invencível!',
+  speed: '🍄 Turbo veloz!',
+  shield:'🛡️ Bloqueia 1 dano!',
+  magnet:'🧲 Puxa as moedas!',
+};
+let _seenPup = {};
 function updatePups(dt) {
   for(const pu of pups) {
     if(pu.col) continue;
+    if(!_seenPup[pu.type] && pu.x>camX-40 && pu.x<camX+CW+40) {
+      _seenPup[pu.type]=true;
+      spawnFloat(pu.x, pu.y-46, PUP_HELP[pu.type]||pu.type, '#ffffff', 4);
+    }
     if(overlap(p.x,p.y,p.w,p.h, pu.x-14,pu.y-14,28,28)) {
       pu.col=true;
       if(pu.type==='star')   { p.starTimer=480;   SFX.star();   spawnFloat(pu.x,pu.y,'★ Estrela!','#ffe066'); spawnStars(pu.x,pu.y); }
@@ -2408,6 +2421,7 @@ function startGame() {
   hide('startScreen');
   stopCelebration();
   lvlIdx=0; score=0;
+  _seenPup={}; // F3: placas de estreia reaparecem a cada nova aventura
   loadLvl(0);
   gs='playing';
   startTimer();

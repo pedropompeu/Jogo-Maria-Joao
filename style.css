@@ -137,8 +137,10 @@ body {
 
 /* ── Speedrun toggle ── */
 #speedrunToggle {
+  /* F3: modo extra, não protagonista — aparece DEPOIS do CTA, discreto */
   display: flex; align-items: center; gap: 8px;
-  color: var(--color-text-secondary); font-size: 0.88rem; cursor: pointer;
+  color: var(--color-text-secondary); font-size: 0.78rem; cursor: pointer;
+  opacity: 0.75;
 }
 #speedrunCheck { width: 16px; height: 16px; cursor: pointer; accent-color: var(--primitive-pink-hot); }
 
