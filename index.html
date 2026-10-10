@@ -96,7 +96,7 @@
   <div class="overlay" id="winScreen" role="dialog" aria-modal="true" aria-label="Você venceu o jogo">
     <div class="over-title">🏆 VOCÊ VENCEU! 🏆</div>
     <div class="over-sub" id="winSub"></div>
-    <div class="badge">Uau! Você completou todas as 10 fases!<br>A Maria é incrível! 🦄✨🌈</div>
+    <div class="badge">Uau! Você completou todas as 20 fases!<br>A Maria é incrível! 🦄✨🌈</div>
     <button class="over-btn share-btn" id="shareWinBtn">📋 Compartilhar Vitória!</button>
     <button class="over-btn" id="winRestartBtn">🌈 Jogar de Novo!</button>
   </div>
@@ -154,7 +154,7 @@
 <div id="achieveToast" role="status" aria-live="polite"></div>
 
 <script src="characters.js?v=1.0"></script>
-<script src="game.js?v=4.5"></script>
+<script type="module" src="game.js?v=5.0"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});

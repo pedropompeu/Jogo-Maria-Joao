@@ -1,4 +1,4 @@
-'use strict';
+import { LEVELS } from './levels-data.js';
 (function () {
 
 // ─── SETUP ─────────────────────────────────────────────────────────────────
@@ -40,8 +40,8 @@ const BASE_HP = 3; // HP ao iniciar cada fase
 let difficulty    = sGet('unicornDiff') || 'normal';
 let speedrunMode  = false;
 let speedrunMs    = 0;
-// TODO(F5/T5.2): trocar default tudo-desbloqueado por progressão suave ([true, ...false]).
-let unlockedLevels = sGetJSON('unicornUnlocked', null) || Array(10).fill(true);
+// F5/T5.2: progressão suave — só a 1ª fase aberta; o resto desbloqueia ao completar.
+let unlockedLevels = sGetJSON('unicornUnlocked', null) || [true, ...Array(LEVELS.length-1).fill(false)];
 let levelStars    = sGetJSON('unicornStars', []);
 let _earnedAch    = sGetJSON('unicornAch', []);
 let hurtFlash     = 0;
@@ -59,338 +59,7 @@ function cutJump() {
 }
 
 // ─── LEVEL DATA ────────────────────────────────────────────────────────────
-// platform row: [x, y, w, h, type, dx?, range?]
-// enemy row:    [x, y_or_null, type]   (null y → place on ground)
-// type: 'static'|'moving'|'cloud'|'crumble'
-const LEVELS = [
-  // ── FASE 0: TUTORIAL ─────────────────────────────────────────────────────
-  // Ensina mecânicas pelo design, sem texto de instrução.
-  // Plataformas sobem gradualmente — cada degrau exige pulo maior.
-  // Solo contínuo: nunca punimos quem ainda está aprendendo.
-  { name:'Primeiros Passos', emoji:'🌟', time:300, lw:2300, gY:520,
-    theme:'meadow', tip:'Anda, pula 2x e entra no portal! 🌀',
-    bg:['#87CEEB','#cce8f4'],
-    plats:[
-      [0,520,2300,80,'static'],        // solo contínuo (sem queda)
-      [200,430,160,18,'static'],       // degrau 1 → pulo básico (~90px)
-      [560,365,160,18,'static'],       // degrau 2 → pulo alto (~155px)
-      [960,285,160,18,'static'],       // degrau 3 → salto duplo necessário (~235px)
-      [1380,365,160,18,'static'],      // degrau 4 → descida
-    ],
-    enemies:[[1700,null,'slime']],     // 1 slime isolado → ensina stompar
-    coins:[
-      [100,480],[180,480],[260,480],   // trilha no chão → anda!
-      [230,390],[300,390],[350,390],   // sobre degrau 1 → pula!
-      [600,325],[660,325],[710,325],   // sobre degrau 2 → pulo maior!
-      [1000,245],[1060,245],[1110,245],// sobre degrau 3 → salto duplo!
-      [1410,325],[1470,325],           // sobre degrau 4
-      [1580,480],[1650,480],[1750,480],// trilha no chão → slime à frente
-      [1870,480],[1980,480],           // após stompar
-    ],
-    hearts:[[1200,480]],
-    cps:[[1450,520]],                  // solo contínuo = plataforma estática garantida
-    powerups:[[960,255,'star']],       // recompensa no pico mais difícil
-    portal:[2220,440], start:[60,450] },
-
-  { name:'Prado Encantado', emoji:'🌸', time:105, lw:3200, gY:520,
-    theme:'meadow', tip:'Pule em cima dos inimigos para derrotá-los!',
-    bg:['#87CEEB','#cce8f4'],
-    plats:[
-      [0,520,3200,80,'static'],
-      [200,420,120,20,'static'],[380,355,100,20,'static'],
-      [540,285,90,20,'static'],[700,370,110,20,'static'],
-      [880,430,90,20,'static'],[1030,345,100,20,'static'],
-      [1180,265,90,20,'static'],[1340,355,120,20,'static'],
-      [1500,285,80,20,'moving',1.5,130],
-      [1700,380,100,20,'static'],[1860,295,90,20,'static'],
-      [2020,395,110,20,'static'],[2180,305,80,20,'static'],
-      [2340,415,100,20,'static'],[2500,325,120,20,'static'],
-      [2680,255,90,20,'static'],[2860,355,130,20,'static'],
-      [3020,435,80,20,'static'],
-    ],
-    enemies:[[440,null,'slime'],[720,null,'slime'],[1190,null,'slime'],
-             [1750,null,'slime'],[2050,null,'slime'],[2550,null,'slime']],
-    coins:[[220,390],[410,325],[560,255],[720,340],[900,400],[1050,315],
-           [1200,235],[1360,325],[1520,255],[1720,350],[1880,265],[2040,365],
-           [2200,275],[2360,385],[2520,295],[2700,225],[2880,325],[3040,405]],
-    hearts:[[1180,235],[2680,225]],
-    cps:[[800,520],[1600,520],[2400,520]], // F2: solo contínuo, ~800px entre cps
-    powerups:[[750,340,'shield'],[1500,255,'star'],[2500,295,'speed']], // F2: escudo cedo ensina sem punir
-    portal:[3080,415], start:[80,450] },
-
-  { name:'Floresta Mágica', emoji:'🌿', time:100, lw:3400, gY:520,
-    theme:'forest', tip:'Morcegos voam em padrões — espere o momento certo!',
-    bg:['#2d5016','#1a3a0a'],
-    plats:[
-      [0,520,3400,80,'static'],
-      [150,430,110,20,'static'],[320,355,90,20,'static'],
-      [480,285,100,20,'static'],[650,400,80,20,'static'],
-      [800,320,110,20,'static'],[960,255,90,20,'static'],
-      [1120,375,100,20,'static'],
-      [1300,295,80,20,'moving',-1.8,100],
-      [1480,425,90,20,'static'],[1640,345,110,20,'static'],
-      [1800,265,80,20,'static'],[1970,385,100,20,'static'],
-      [2130,305,90,20,'moving',2,120],
-      [2300,425,110,20,'static'],[2480,335,80,20,'static'],
-      [2650,255,100,20,'static'],[2820,375,90,20,'static'],
-      [2990,455,120,20,'static'],[3160,375,80,20,'static'],
-    ],
-    enemies:[[320,null,'slime'],[650,null,'slime'],[1200,null,'slime'],
-             [400,220,'bat'],[900,195,'bat'],[1700,205,'bat'],
-             [2200,185,'bat'],[2600,null,'slime'],[3000,null,'slime']],
-    coins:[[170,395],[340,325],[500,255],[670,370],[820,285],[980,225],
-           [1140,345],[1320,265],[1500,395],[1660,315],[1820,235],[1990,355],
-           [2150,275],[2320,395],[2500,305],[2670,225],[2840,345],[3010,425]],
-    hearts:[[960,225],[2650,225]],
-    cps:[[850,520],[1700,520],[2550,520]], // F2: solo contínuo, ~850px entre cps
-    powerups:[[1300,265,'star'],[1950,245,'magnet'],[2480,305,'shield']],
-    portal:[3240,415], start:[60,450] },
-
-  { name:'Reino das Nuvens', emoji:'☁️', time:130, lw:3600, gY:580,
-    theme:'sky', tip:'Plataformas de nuvem te catapultam para o alto!',
-    bg:['#b8d4f0','#e8f4fd'],
-    plats:[
-      // Chão inicial
-      [0,560,220,40,'static'],
-      // Seção 1 — nuvens (x 220-1080), sem estática abaixo delas
-      [220,470,100,22,'cloud'],[360,400,90,22,'cloud'],
-      [490,330,100,22,'cloud'],[640,260,90,22,'cloud'],
-      [790,330,100,22,'cloud'],[940,260,80,22,'cloud'],
-      [1080,340,100,22,'cloud'],
-      // Área de descanso 1 (x 1240-1419) — nenhuma nuvem nesta faixa
-      [1240,430,180,22,'static'],
-      // Seção 2 — nuvens (x 1480-2600)
-      [1480,360,90,22,'cloud'],[1620,280,100,22,'cloud'],
-      [1770,345,90,22,'cloud'],
-      [1920,265,100,22,'moving',2,120],
-      [2080,345,90,22,'cloud'],[2230,265,100,22,'cloud'],
-      [2380,340,90,22,'cloud'],[2530,265,80,22,'cloud'],
-      // Área de descanso 2 (x 2680-2859) — nenhuma nuvem nesta faixa
-      [2680,420,180,22,'static'],
-      // Seção 3 — nuvens (x 2920-3370)
-      [2920,350,90,22,'cloud'],[3070,270,100,22,'cloud'],
-      [3230,350,90,22,'cloud'],
-      // Plataforma final (x 3380-3539) — nenhuma nuvem acima
-      [3380,400,160,22,'static'],
-    ],
-    enemies:[[490,300,'bat'],[790,300,'bat'],[1080,310,'bat'],
-             [1480,330,'bat'],[1770,315,'bat'],[2230,235,'bat'],
-             [2920,320,'bat'],[3230,320,'bat'],
-             [640,230,'bee'],[2530,235,'bee']],
-    coins:[[240,440],[380,370],[510,300],[660,230],[810,300],[960,230],
-           [1100,310],[1260,400],[1500,330],[1640,250],[1790,315],
-           [1940,235],[2100,315],[2250,235],[2400,310],[2550,235],
-           [2700,390],[2940,320],[3090,240],[3250,320],[3400,370]],
-    hearts:[[640,230],[3230,320]],
-    cps:[[1330,430],[2770,420]],
-    powerups:[[940,230,'speed'],[1620,250,'star'],[2530,235,'magnet']],
-    portal:[3505,370], start:[60,480] },
-
-  { name:'Caverna de Cristal', emoji:'💎', time:135, lw:3800, gY:520,
-    theme:'cave', tip:'Plataformas de cristal somem! Atravesse rápido!',
-    bg:['#150025','#0d001a'],
-    plats:[
-      [0,520,300,80,'static'],
-      [200,430,90,20,'crumble'],[360,355,80,20,'crumble'],
-      [500,285,100,20,'static'],[660,400,80,20,'crumble'],
-      [820,325,90,20,'static'],[990,255,80,20,'crumble'],
-      [1150,375,110,20,'static'],[1320,295,80,20,'crumble'],
-      [1490,415,90,20,'static'],[1660,335,80,20,'crumble'],
-      [1830,255,100,20,'static'],[2000,375,80,20,'crumble'],
-      [2170,295,90,20,'static'],[2340,215,80,20,'crumble'],
-      [2510,335,100,20,'static'],[2690,255,80,20,'crumble'],
-      [2870,395,90,20,'static'],[3050,315,80,20,'crumble'],
-      [3230,235,100,20,'static'],[3410,375,80,20,'crumble'],
-      [3590,455,130,20,'static'],
-      [3200,520,600,80,'static'],
-    ],
-    enemies:[[500,null,'spike'],[900,null,'spike'],[1500,null,'spike'],
-             [400,220,'bat'],[850,185,'bat'],[1350,195,'bat'],
-             [2000,175,'bat'],[2500,185,'bat'],
-             [2700,null,'spike'],[3300,null,'spike']],
-    coins:[[220,395],[380,325],[520,255],[680,365],[840,295],[1010,225],
-           [1170,345],[1340,265],[1510,385],[1680,305],[1850,225],[2020,345],
-           [2190,265],[2360,185],[2530,305],[2710,225],[2890,365],[3070,285],
-           [3250,205],[3430,345],[3610,425]],
-    hearts:[[1830,225],[3230,205]],
-    cps:[[1200,375],[1870,255],[2550,335],[3300,520]], // F2: +[1830,255] e chão [3200,520]
-    powerups:[[1490,385,'shield'],[2170,265,'star'],[2700,265,'magnet'],[3050,285,'speed']],
-    hazards:[[520,265,22,20,'spike'],[840,305,22,20,'spike'],[1500,395,22,20,'spike'],
-             [2000,355,22,20,'spike'],[2870,375,22,20,'spike'],[3240,215,22,20,'spike']],
-    portal:[3680,415], start:[60,450] },
-
-  { name:'Castelo Arco-Íris', emoji:'🏰', time:130, lw:4000, gY:520,
-    theme:'castle', tip:'Fase final! Combine todos os seus poderes!',
-    bg:['#4a0080','#800040'],
-    plats:[
-      [0,520,300,80,'static'],
-      [220,430,110,20,'static'],[400,355,90,20,'moving',1.5,100],
-      [580,285,100,20,'cloud'],[760,405,80,20,'crumble'],
-      [920,335,90,20,'static'],[1080,255,100,20,'moving',-2,120],
-      [1260,385,80,20,'cloud'],[1430,305,90,20,'crumble'],
-      [1600,425,110,20,'static'],[1780,345,80,20,'moving',2.5,140],
-      [1960,265,100,20,'cloud'],[2140,395,80,20,'crumble'],
-      [2320,315,90,20,'static'],[2500,235,100,20,'moving',-1.5,100],
-      [2680,375,80,20,'crumble'],[2860,295,110,20,'static'],  // era cloud — criava trap sobre o chão da arena
-      [3040,215,90,20,'static'],[3220,355,80,20,'moving',2,120],
-      [3400,275,100,20,'crumble'],[3580,395,90,20,'static'],  // era cloud — criava trap sobre o chão da arena
-      [3760,455,130,20,'static'],
-      [2800,520,1200,80,'static'],     // chão da arena do chefão (x=2800–4000)
-    ],
-    enemies:[[430,null,'slime'],[780,null,'slime'],
-             [350,185,'bat'],[850,175,'bat'],[1300,185,'bat'],
-             [1800,175,'bat'],[2300,185,'bat'],[2600,175,'bat'],[3100,185,'bat'],
-             [1100,null,'spike'],[1700,null,'spike'],[2200,null,'spike'],
-             [2900,null,'spike'],[3400,null,'slime'],
-             [1500,200,'bee'],[2700,195,'bee']],
-    coins:[[240,395],[420,325],[600,255],[780,375],[940,305],[1100,225],
-           [1280,355],[1450,275],[1620,395],[1800,315],[1980,235],[2160,365],
-           [2340,285],[2520,205],[2700,345],[2880,265],[3060,185],[3240,325],
-           [3420,245],[3600,365],[3780,425]],
-    hearts:[[1080,225],[2500,205],[3040,185]],
-    cps:[[1640,425],[2350,315],[3820,520]], // F2: +[2320,315] antes da arena; estáticas e chão
-    powerups:[[1600,395,'star'],[2320,285,'shield']],
-    hazards:[[240,410,22,20,'spike'],[940,315,22,20,'spike'],[3060,195,22,20,'spike']],
-    portal:[3870,415], hasBoss:true, start:[60,450] },
-
-  { name:'Praia Mágica', emoji:'🌊', time:115, lw:3400, gY:520,
-    theme:'beach', tip:'As estrelas-do-mar rolam rápido — dê um salto duplo para desviar!',
-    bg:['#87CEEB','#FFF4E0'],
-    plats:[
-      [0,520,3400,80,'static'],
-      [180,420,110,20,'static'],[360,350,90,20,'static'],
-      [520,280,100,20,'static'],[680,390,80,20,'static'],
-      [840,310,110,20,'static'],[1000,240,90,20,'static'],
-      [1160,360,100,20,'moving',1.8,110],
-      [1340,280,80,20,'static'],[1500,400,90,20,'static'],
-      [1660,320,110,20,'static'],[1820,240,80,20,'static'],
-      [1990,380,100,20,'static'],
-      [2150,300,90,20,'moving',-2,120],
-      [2320,420,110,20,'static'],[2500,340,80,20,'static'],
-      [2670,260,100,20,'static'],[2840,380,90,20,'static'],
-      [3010,455,120,20,'static'],[3180,375,80,20,'static'],
-    ],
-    enemies:[[370,null,'spike'],[750,null,'spike'],
-             [840,220,'bat'],[1300,200,'bat'],
-             [1680,null,'spike'],[2050,null,'spike'],
-             [1900,185,'bat'],[2400,195,'bat'],
-             [2700,null,'spike'],[3050,null,'spike']],
-    coins:[[200,390],[380,320],[540,250],[700,360],[860,280],[1020,210],
-           [1180,330],[1360,250],[1520,370],[1680,290],[1840,210],[2010,350],
-           [2170,270],[2340,390],[2520,310],[2690,230],[2860,350],[3030,425]],
-    hearts:[[1000,210],[2670,230]],
-    cps:[[870,520],[1740,520],[2610,520]], // F2: solo contínuo, ~870px entre cps
-    powerups:[[1340,250,'star'],[2000,290,'magnet'],[2500,310,'speed']],
-    portal:[3260,395], start:[60,450] },
-
-  { name:'Terra dos Doces', emoji:'🍭', time:110, lw:3600, gY:520,
-    theme:'candy', tip:'Plataformas de pirulito catapultam bem alto — use para pegar moedas secretas!',
-    bg:['#FFB3DE','#FFE4F5'],
-    plats:[
-      [0,520,3600,80,'static'],
-      [160,435,100,20,'cloud'],[340,360,90,20,'static'],
-      [500,285,100,20,'cloud'],[660,405,80,20,'static'],
-      [820,325,110,20,'cloud'],[980,250,90,20,'static'],
-      [1140,375,100,20,'moving',1.5,110],
-      [1320,295,80,20,'cloud'],[1490,415,90,20,'static'],
-      [1650,335,110,20,'cloud'],[1810,255,80,20,'static'],
-      [1980,385,100,20,'cloud'],
-      [2140,305,90,20,'moving',-1.8,120],
-      [2310,425,110,20,'static'],[2490,345,80,20,'cloud'],
-      [2660,265,100,20,'static'],[2830,385,90,20,'cloud'],
-      [3000,455,120,20,'static'],[3180,375,80,20,'cloud'],
-      [3360,295,100,20,'static'],
-    ],
-    enemies:[[340,null,'slime'],[660,null,'slime'],
-             [500,195,'bat'],[980,180,'bat'],
-             [1350,null,'slime'],[1820,null,'slime'],
-             [1490,190,'bat'],[2000,175,'bat'],
-             [2490,null,'slime'],[2830,null,'slime'],
-             [2650,185,'bat'],[3180,175,'bat']],
-    coins:[[180,405],[360,330],[520,255],[680,375],[840,295],[1000,220],
-           [1160,345],[1340,265],[1510,385],[1670,305],[1830,225],[2000,355],
-           [2160,275],[2330,395],[2510,315],[2680,235],[2850,355],[3020,425],
-           [3200,345],[3380,265]],
-    hearts:[[980,220],[3180,145]],
-    cps:[[900,520],[1800,520],[2700,520]], // F2: solo contínuo, ~900px entre cps
-    powerups:[[1320,265,'speed'],[2490,315,'star'],[3000,425,'shield']],
-    portal:[3460,415], start:[60,450] },
-
-  { name:'Mundo da Lua', emoji:'🌙', time:120, lw:3800, gY:540,
-    theme:'moon', tip:'Gravidade lunar — seus pulos são MUITO mais altos aqui!',
-    bg:['#0A0A1A','#1A1035'],
-    gravity:0.28,
-    plats:[
-      [0,540,280,60,'static'],
-      [220,450,100,20,'static'],[430,375,90,20,'static'],
-      [620,300,100,20,'static'],[800,415,80,20,'static'],
-      [970,335,110,20,'static'],[1140,255,90,20,'static'],
-      [1310,385,100,20,'moving',1.5,130],
-      [1510,305,80,20,'static'],[1690,425,90,20,'static'],
-      [1870,345,110,20,'static'],[2050,265,80,20,'static'],
-      [2230,405,100,20,'static'],
-      [2410,325,90,20,'moving',-1.8,130],
-      [2600,445,110,20,'static'],[2780,365,80,20,'static'],
-      [2960,285,100,20,'static'],[3140,405,90,20,'static'],
-      [3320,325,80,20,'static'],[3500,245,110,20,'static'],
-      [3680,405,130,20,'static'],
-      [3520,540,280,60,'static'],
-    ],
-    enemies:[[450,null,'spike'],[820,null,'spike'],
-             [450,200,'bat'],[970,185,'bat'],
-             [1560,null,'spike'],[1910,null,'spike'],
-             [1350,190,'bat'],[1730,175,'bat'],
-             [2300,null,'spike'],
-             [2230,180,'bat'],[2650,170,'bat'],
-             [3010,null,'spike'],[3200,165,'bat'],
-             [3370,null,'spike'],
-             [1100,240,'bee'],[2800,210,'bee']],
-    coins:[[240,420],[450,345],[640,270],[820,385],[990,305],[1160,225],
-           [1330,355],[1530,275],[1710,395],[1890,315],[2070,235],[2250,375],
-           [2430,295],[2620,415],[2800,335],[2980,255],[3160,375],[3340,295],
-           [3520,215],[3700,375]],
-    hearts:[[1140,225],[2960,255]],
-    cps:[[1020,335],[1910,345],[2640,445],[3170,405]], // F2: +[1870,345] e [3140,405]
-    powerups:[[1310,355,'star'],[2600,415,'speed'],[3500,215,'shield']],
-    portal:[3740,375], start:[60,475] },
-
-  { name:'Paraíso Final', emoji:'🌈', time:150, lw:4400, gY:520,
-    theme:'paradise', tip:'A aventura mais desafiadora! Usa tudo que aprendeu!',
-    bg:['#FF9EDE','#C8F0FF'],
-    plats:[
-      [0,520,280,80,'static'],
-      [220,430,110,20,'static'],[400,355,90,20,'moving',1.5,100],
-      [580,280,100,20,'cloud'],[760,400,80,20,'crumble'],
-      [920,325,90,20,'static'],[1080,250,100,20,'moving',-2,120],
-      [1260,375,80,20,'cloud'],[1430,295,90,20,'crumble'],
-      [1600,425,110,20,'static'],[1780,345,80,20,'moving',2,130],
-      [1960,265,100,20,'cloud'],[2140,395,80,20,'crumble'],
-      [2320,315,90,20,'static'],[2500,235,100,20,'moving',-1.5,110],
-      [2680,375,80,20,'crumble'],[2860,295,110,20,'cloud'],
-      [3040,215,90,20,'static'],[3220,355,80,20,'moving',2,120],
-      [3400,275,100,20,'crumble'],[3580,395,90,20,'cloud'],
-      [3760,315,80,20,'static'],[3940,235,110,20,'moving',-2,130],
-      [4120,385,90,20,'cloud'],[4300,460,130,20,'static'],
-      [3500,520,1000,80,'static'],     // chão da arena do chefão final (x=3500–4500)
-    ],
-    enemies:[[420,null,'slime'],[800,null,'slime'],
-             [340,190,'bat'],[840,175,'bat'],[1300,185,'bat'],
-             [1800,175,'bat'],[2300,185,'bat'],[2800,175,'bat'],[3300,185,'bat'],
-             [1100,null,'spike'],[1700,null,'spike'],[2200,null,'spike'],
-             [2900,null,'spike'],[3400,null,'slime'],
-             [1600,200,'bee'],[2600,190,'bee'],[3200,185,'bee']],
-    coins:[[240,400],[420,325],[600,250],[780,370],[940,295],[1100,220],
-           [1280,345],[1450,265],[1620,395],[1800,315],[1980,235],[2160,365],
-           [2340,285],[2520,205],[2700,345],[2880,265],[3060,185],[3240,325],
-           [3420,245],[3600,365],[3780,285],[3960,205],[4140,355],[4320,430]],
-    hearts:[[1080,220],[2500,205],[3040,185]],
-    cps:[[960,325],[1640,425],[2360,315],[3070,215],[3790,315]], // F2: +[1600,425] e [3040,215]
-    powerups:[[1260,345,'star'],[2320,295,'magnet'],[2500,205,'star'],[3580,365,'shield']],
-    hazards:[[240,410,22,20,'spike'],[580,260,22,20,'spike'],[1100,355,22,20,'spike'],
-             [1620,405,22,20,'spike'],[2320,295,22,20,'spike'],[3060,195,22,20,'spike'],
-             [3780,295,22,20,'spike']],
-    portal:[4370,420], hasBoss:true, bossX:3900, start:[60,450] },
-];
+// F5: fonte única em levels-data.js (20 fases) via ES module. Sem cópia inline.
 
 // ─── GAME STATE ────────────────────────────────────────────────────────────
 let gs = 'start'; // start|playing|paused|lvlDone|gameOver|win
@@ -563,7 +232,7 @@ const ACHIEVEMENTS = [
   {id:'no_damage',   icon:'🛡️', title:'Intocável!',           desc:'Complete fase sem levar dano'},
   {id:'boss_slayer', icon:'🐉', title:'Domadora de Dragões!', desc:'Derrote o chefe'},
   {id:'heart_saver', icon:'❤️', title:'Cheia de Amor!',       desc:'Colete todos os corações da fase'},
-  {id:'all9',        icon:'🌈', title:'Aventura Completa!',   desc:'Complete todas as 10 fases'},
+  {id:'all20',       icon:'🌈', title:'Aventura Completa!',   desc:'Complete todas as 20 fases'},
 ];
 let _achieveQueue = [];
 let _achieveTO   = null;
@@ -1435,7 +1104,7 @@ function completeLevel() {
   if(lvlTimer>=60) checkAchievement('speedster');
   if(hearts.every(h=>h.col)) checkAchievement('heart_saver');
   if(coins.every(c=>c.col)) checkAchievement('collector');
-  if(lvlIdx===LEVELS.length-1) checkAchievement('all9');
+  if(lvlIdx===LEVELS.length-1) checkAchievement('all20');
 
   if (lvlIdx>=LEVELS.length-1) {
     gs='win'; stopMusic();

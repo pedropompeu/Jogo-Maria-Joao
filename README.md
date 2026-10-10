@@ -10,7 +10,7 @@ Plataformer HTML5 feito com carinho para a Maria e o João — sobrinhes do Tio 
 
 Um jogo de plataforma com unicórnio mágico! Colete moedas, evite inimigos, pule em cima dos slimes e chegue ao portal para avançar de fase.
 
-- 10 fases com temas únicos (prado, floresta, nuvens, caverna, castelo, praia, doces, lua e paraíso)
+- 20 fases com temas únicos (prado, floresta, nuvens, caverna, castelo, praia, doces, lua, paraíso, lava, selva, céu, gelo e templo)
 - Sistema de 3 estrelas por fase
 - Checkpoints, power-ups e chefões
 - Funciona no celular e no computador

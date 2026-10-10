@@ -1,12 +1,13 @@
-// F0 (AUD-02): design-tokens.css incluído — vinha via @import e o tema quebrava
-// offline. Bump v7→v8 invalida o cache antigo nos clientes.
-const CACHE = 'unicorn-v8';
+// F5: levels-data.js entra no cache (vira dependência via ES module).
+// Bump v8→v9 entrega F1-F5 a quem cacheou o v8.
+const CACHE = 'unicorn-v9';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './brand/design-tokens.css',
   './characters.js',
+  './levels-data.js',
   './game.js',
   './manifest.json',
   './icons/icon-192.png',
