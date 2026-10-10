@@ -31,6 +31,8 @@ function sGetJSON(k, fb) {
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 const G = 0.55, JUMP_V = -13.5, DJ_V = -11, SPD = 4.5;
+// F1: janelas de perdão do pulo (em frames @60fps) + corte de altura variável
+const JBUF = 7, COYO = 6, JUMP_CUT = -4.5;
 const MAX_HP = 5, INV_T = 90, STOMP_V = -10, CLOUD_V = -16;
 const BASE_HP = 3; // HP ao iniciar cada fase
 
@@ -49,6 +51,12 @@ let totalStomps   = 0;
 // ─── INPUT ─────────────────────────────────────────────────────────────────
 const keys = { left:false, right:false, jump:false };
 let jumpEdge = false; // single-frame edge trigger
+let jumpBuf = 0, coyoteT = 0; // F1: buffer de pulo + coyote time (frames @60fps)
+
+// F1: altura variável — soltar o pulo corta a subida (toque curto = pulo curto)
+function cutJump() {
+  if (typeof p !== 'undefined' && p.vy < JUMP_CUT) p.vy = JUMP_CUT;
+}
 
 // ─── LEVEL DATA ────────────────────────────────────────────────────────────
 // platform row: [x, y, w, h, type, dx?, range?]
@@ -469,6 +477,7 @@ function loadLvl(idx, fromCp) {
   parts  = []; floatTexts=[]; fireballs=[];
   cpSave = (L.cps||[]).map(()=>null);
   camX   = 0;
+  jumpBuf = 0; coyoteT = 0; // F1: sem pulo herdado da fase anterior
   lvlDamageCount = 0;
   totalStomps = 0;
 
@@ -1066,12 +1075,16 @@ function updatePlayer(dt) {
   if(p.starTimer>0)
     spawnParticles(p.x+p.w/2,p.y+p.h/2,`hsl(${(performance.now()/5)%360},100%,70%)`,3);
 
-  // jump
-  if (jumpEdge) {
-    if (p.onG) { p.vy=JUMP_V; p.onG=false; p.djAvail=true; SFX.jump(); }
+  // jump — F1: buffer (~120ms) + coyote (~100ms). O aperto vale mesmo se o
+  // chão chegou / saiu há poucos frames — essencial no touch impreciso.
+  if (jumpEdge) { jumpBuf = JBUF; jumpEdge = false; }
+  else if (jumpBuf > 0) jumpBuf -= dt;
+  if (jumpBuf > 0) {
+    if (p.onG || coyoteT > 0) {
+      p.vy=JUMP_V; p.onG=false; coyoteT=0; p.djAvail=true; SFX.jump(); jumpBuf=0;
+    }
     else if (p.djAvail) { p.vy=DJ_V; p.djAvail=false; SFX.djump();
-      spawnParticles(p.x+p.w/2,p.y+p.h,'#cc88ff',6); }
-    jumpEdge=false;
+      spawnParticles(p.x+p.w/2,p.y+p.h,'#cc88ff',6); jumpBuf=0; }
   }
 
   const lvlG = LEVELS[lvlIdx].gravity || G;
@@ -1112,6 +1125,10 @@ function updatePlayer(dt) {
     } else if (p.vx>0) { p.x=pl.x-p.w; p.vx=0; }
     else if (p.vx<0)  { p.x=pl.x+pl.w; p.vx=0; }
   }
+
+  // F1: coyote time — recém-saído do chão ainda pode pular por ~100ms
+  if (p.onG) coyoteT = COYO;
+  else coyoteT = Math.max(0, coyoteT - dt);
 
   // portal
   if (portal && overlap(p.x,p.y,p.w,p.h, portal.x,portal.y,portal.w,portal.h)) {
@@ -2343,28 +2360,32 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('keyup',e=>{
   if(e.code==='ArrowLeft'||e.code==='KeyA') keys.left=false;
   if(e.code==='ArrowRight'||e.code==='KeyD') keys.right=false;
-  if(e.code==='ArrowUp'||e.code==='Space'||e.code==='KeyW') keys.jump=false;
+  if(e.code==='ArrowUp'||e.code==='Space'||e.code==='KeyW') { keys.jump=false; cutJump(); }
 });
+document.addEventListener('blur',()=>{ keys.left=keys.right=keys.jump=false; });
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) keys.left=keys.right=keys.jump=false; });
 
-// mobile
+// mobile — F1: <button> + Pointer Events (touch+mouse+caneta, multitouch real
+// via captura implícita do touch). Soltar o pulo corta a subida (cutJump).
 function bindBtn(id,key,isJump){
   const el=document.getElementById(id); if(!el) return;
-  el.addEventListener('touchstart',e=>{
+  el.addEventListener('pointerdown',e=>{
     e.preventDefault();
     keys[key]=true;
     if(isJump) jumpEdge=true;
     el.classList.add('pressed');
-    try { navigator.vibrate?.(30); } catch(_){}
-  },{passive:false});
-  el.addEventListener('touchend',e=>{
-    e.preventDefault();
+    try { navigator.vibrate?.(20); } catch(_){}
+  });
+  const up=e=>{
+    if(e.cancelable) e.preventDefault();
     keys[key]=false;
     el.classList.remove('pressed');
-  },{passive:false});
-  el.addEventListener('touchcancel',e=>{
-    keys[key]=false;
-    el.classList.remove('pressed');
-  },{passive:false});
+    if(isJump) cutJump();
+  };
+  el.addEventListener('pointerup',up);
+  el.addEventListener('pointercancel',up);
+  el.addEventListener('lostpointercapture',()=>{ keys[key]=false; el.classList.remove('pressed'); });
+  el.addEventListener('contextmenu',e=>e.preventDefault());
 }
 bindBtn('btnLeft','left',false);
 bindBtn('btnRight','right',false);

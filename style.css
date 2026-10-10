@@ -256,20 +256,25 @@ body {
 .action-buttons { display: flex; gap: 10px; pointer-events: auto; padding-bottom: 12px; }
 
 .touch-btn {
-  /* touch area 90×90 via padding trick — visual size 64×64 */
-  width: 64px; height: 64px;
-  padding: 13px;
-  box-sizing: content-box;
+  /* F1: <button> de verdade — 72px no d-pad, 84px no pulo (dedo de 8 anos).
+     touch-action:none entrega o gesto ao jogo, sem scroll/zoom acidental. */
+  width: 72px; height: 72px;
+  padding: 0;
+  box-sizing: border-box;
+  appearance: none; -webkit-appearance: none;
+  color: inherit; font: inherit;
+  touch-action: none;
   background: rgba(255,255,255,0.15);
   border: 2px solid rgba(255,255,255,0.35);
   border-radius: var(--primitive-radius-full);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  user-select: none; -webkit-tap-highlight-color: transparent;
+  user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
   transition: transform var(--transition-button), background var(--transition-button);
   pointer-events: auto;
   -webkit-touch-callout: none;
 }
+.touch-jump { width: 84px; height: 84px; }
 .touch-btn:active,
 .touch-btn.pressed {
   transform: scale(0.88);
