@@ -27,6 +27,16 @@ relacionado:
   - Foco em escopo fechado, segurança, isolamento de dados e conformidade técnica.
   - Nenhum dado confidencial de cliente é compartilhado entre repositórios distintos.
 
+## Jogo da Maria e do João {#jogo}
+
+> O produto concreto deste repositório — plataformer HTML5 feito para a Maria e o João, sobrinhos do Pedro.
+
+- [2026-10-10] (d) **Público-alvo:** crianças de 8 a 14 anos, mobile primeiro. `justifica` [[decisoes#jogo]].
+- [2026-10-10] (d) **Conteúdo e progressão:** 20 fases via `levels-data.js` como módulo ES, com progressão suave por desbloqueio; sistemas completos mantidos (4 power-ups, 3 dificuldades, speedrun). `justifica` [[decisoes#jogo]].
+- [2026-10-10] (d) **Identidade visual:** UI com brilho e unicórnio em destaque; as fases mantêm variedade de temas próprios. `justifica` [[decisoes#jogo]].
+- [2026-10-17] (e) ← `README.md` **Promessa central:** plataformer que "funciona offline" (PWA instalável em `sobrinhosdotiopedro.netlify.app`), 3 estrelas por fase, checkpoints e chefões; teclado e touch.
+- [2026-10-17] (e) ← `game.js:1840` **Sem backend:** save local em keys `unicorn*` (`localStorage`), incluindo cosméticos; nenhuma telemetria ou conta.
+
 ## Regras de Negócio e Engenharia {#regras}
 
 - [2026-09-12] (d) **Autonomia Assistida Obrigatória:**

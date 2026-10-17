@@ -73,41 +73,43 @@ sem quebrar a brand Galáxia Encantada nem o conteúdo já pronto?
 
 ### F0 — Higiene mobile (anda já, sem decisão) ~4h
 
-- [ ] T0.1 `safeGet/safeSet` p/ `localStorage` + fallback em memória → AUD-03
-- [ ] T0.2 Guarda de morte por tempo + bound-check `nextLvlBtn` → AUD-05
-- [ ] T0.3 SW: incluir `design-tokens.css`, `ignoreSearch:true`, bump documentado → AUD-02
-- [ ] T0.4 `netlify.toml` raiz + `.netlify/` no `.gitignore` → AUD-06
+- [x] T0.1 `safeGet/safeSet` p/ `localStorage` + fallback em memória → AUD-03
+- [x] T0.2 Guarda de morte por tempo + bound-check `nextLvlBtn` → AUD-05
+- [x] T0.3 SW: incluir `design-tokens.css`, `ignoreSearch:true`, bump documentado → AUD-02
+- [x] T0.4 `netlify.toml` raiz + `.netlify/` no `.gitignore` → AUD-06
 
 ### F1 — Controles gostosos (precisa: tamanho e portrait?) ~5h
 
-- [ ] T1.1 `div.touch-btn` → `<button>`, `pointer events` (mouse+touch+caneta), multitouch real
-- [ ] T1.2 Jump buffer ~120ms + coyote time ~100ms + altura variável (soltar = pulo curto)
-- [ ] T1.3 Botão pular maior (lado direito, 84px), setas 72px, zona morta entre eles
-- [ ] T1.4 Remover `user-scalable=no`; zoom liberado fora do canvas
+- [x] T1.1 `div.touch-btn` → `<button>`, `pointer events` (mouse+touch+caneta), multitouch real
+- [x] T1.2 Jump buffer ~120ms + coyote time ~100ms + altura variável (soltar = pulo curto)
+- [x] T1.3 Botão pular maior (lado direito, 84px), setas 72px, zona morta entre eles
+- [x] T1.4 Remover `user-scalable=no`; zoom liberado fora do canvas
 
 ### F2 — Física perdoadora (autonomia técnica) ~3h
 
-- [ ] T2.1 Hitbox do inimigo 80% do sprite; stomp com tolerância +8px
-- [ ] T2.2 Escudo grátis na fase 2 (ensina sem punir); checkpoints a cada ~800px nas fases longas
-- [ ] T2.3 Alinhar boss 2HP × texto (aguarda decisão F5)
+- [x] T2.1 Hitbox do inimigo 80% do sprite; stomp com tolerância +8px
+- [x] T2.2 Escudo grátis na fase 2 (ensina sem punir); checkpoints a cada ~800px nas fases longas
+- [x] T2.3 Alinhar boss 2HP × texto (aguarda decisão F5)
 
 ### F3 — Clareza sem corte (decidido: manter tudo) ~2h
 
-- [ ] T3.1 Tutorial em 3 gestos (anda → pula → stompa), sem parágrafo
-- [ ] T3.2 Placas visuais quando cada power-up estreia (em vez de restringir)
-- [ ] T3.3 Microcopy da tela inicial reorganizado (speedrun como opção secundária, sem remover)
+- [x] T3.1 Tutorial em 3 gestos (anda → pula → stompa), sem parágrafo
+- [x] T3.2 Placas visuais quando cada power-up estreia (em vez de restringir)
+- [x] T3.3 Microcopy da tela inicial reorganizado (speedrun como opção secundária, sem remover)
 
 ### F4 — Brand no mobile (precisa: moldura cósmica?) ~3h
 
-- [ ] T4.1 Voz da marca nos overlays (microcopy `BRAND.md` §11: "Quase!", sem "falhou")
-- [ ] T4.2 `:focus` visível real (`outline` magenta) + `role=dialog` + `aria-live` HUD/toast
-- [ ] T4.3 HUD mobile minimal: moedas+vidas grandes, resto no pause
+- [x] T4.1 Voz da marca nos overlays (microcopy `BRAND.md` §11: "Quase!", sem "falhou")
+- [x] T4.2 `:focus` visível real (`outline` magenta) + `role=dialog` + `aria-live` HUD/toast
+- [x] T4.3 HUD mobile minimal: moedas+vidas grandes, resto no pause
 
 ### F5 — Conteúdo (decidido: 20 fases + progressão) ~4-6h
 
-- [ ] T5.1 Importar `levels-data.js` como módulo, remover `LEVELS` inline (decidido)
-- [ ] T5.2 Progressão suave: próxima fase abre ao completar anterior (decidido)
-- [ ] T5.3 Playtest mobile roteirizado (2 crianças 8-10, 2 de 11-14): zerar fase 1 sem ajuda?
+- [x] T5.1 Importar `levels-data.js` como módulo, remover `LEVELS` inline (decidido)
+- [x] T5.2 Progressão suave: próxima fase abre ao completar anterior (decidido)
+- [ ] T5.3 Playtest mobile roteirizado (2 crianças 8-10, 2 de 11-14): zerar fase 1 sem ajuda? — **pendente de verdade**: o playtest de F5 foi técnico (fases 11 e 20 jogáveis, progressão, console limpo), não com crianças.
+
+- [2026-10-17] (i) F0–F5 executados por completo: `98361a9` (F0) `791807c` (F1) `af66b9c` (F2) `b512118` (F3) `ec8015c` (F4) `39fb720` (F5) `7592d76` (ícones). Checkboxes marcados retroativamente em 2026-10-17 após verificação de código em disco.
 
 ## Default adotado enquanto não fecha {#default}
 

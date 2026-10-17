@@ -78,7 +78,8 @@ relacionado:
 - **Reprodução:** estático + manual — tentar jogar só com teclado (Tab não alcança d-pad), ativar zoom no mobile (bloqueado), inspecionar `bindBtn` em `game.js:2325-2346` (só `touchstart/end`, sem `click/keydown`)
 - **Por que importa:** falha WCAG 1.4.4 (zoom) e 2.1/4.1 (nome/papel/valor); jogo infantil tem obrigação ampliada de acessibilidade
 - **Fix recomendado:** remover `user-scalable=no`, trocar `div` por `<button>`, adicionar `role=dialog` + foco programático + `aria-live` no HUD/toast, estilo `:focus` real. Custo: ~3h
-- **Estado:** aberto
+- **Estado:** corrigido
+- [2026-10-17] (i) Fechado: F4 (`ec8015c`) entregou `<button>` com `aria-label` (`index.html:52-62`), zoom liberado (`index.html:5`), `role=dialog`/`aria-modal` nos 8 overlays, `:focus-visible` (`style.css:6`) e `aria-live` em `#goSub`/toast; foco programático no primeiro botão do overlay via `show()` (`game.js:2025`). Verificado por leitura em 2026-10-17.
 - [2026-10-10] (i) Auditoria estática 2026-10-10.
 
 ### [AUD-05] Morte por tempo pode travar em loop e portal final sem guarda
@@ -110,7 +111,8 @@ relacionado:
 - **Reprodução:** estático — ler os três arquivos: nenhum cita `game.js`, fases, PWA, brand Cósmica Kawaii (`BRAND.md`), ou commits (`7e2d43a`, `b928cb3`)
 - **Por que importa:** governança (AUTONOMIA ASSISTIDA) opera sobre descrição falsa; risco de IA "redecidir" o já decidido (ex: deletar fases extras, trocar stack)
 - **Fix recomendado:** atualizar `arquitetura.md#mapa` com o jogo real + registrar decisões de produto (10 vs 20 fases, desbloqueio total, boss 2HP) em `decisoes.md`. Custo: ~1h (parcialmente feito nesta auditoria)
-- **Estado:** aberto
+- **Estado:** corrigido
+- [2026-10-17] (i) Fechado em 2026-10-17: `arquitetura.md#mapa` descreve o jogo verificado, `decisoes.md#jogo` registra as decisões de produto e `produto.md#jogo` ganhou a visão do jogo. `evidencia` [[arquitetura#mapa]].
 - [2026-10-10] (i) Auditoria estática 2026-10-10 `bloqueia` [[arquitetura#mapa]].
 
 ### [AUD-08] Chefão com 2HP mas dica promete 3 pisadas
@@ -123,6 +125,26 @@ relacionado:
 - **Estado:** corrigido
 - [2026-10-10] (i) Corrigido em F2/T2.3: texto alinhado a 2 pisadas (mantém o balance `b928cb3` p/ crianças). Boss HP segue 2.
 - [2026-10-10] (i) Auditoria estática 2026-10-10.
+
+### [AUD-09] Governança inteira fora do git — um `git clean` apagaria a memória
+
+- **Severidade:** alto — o ativo que sustenta o método (protocolo de IAs, decisões, achados) existia só no disco local; clone em outra máquina ou limpeza de worktree perderia tudo, e nenhuma IA nova receberia o roteamento
+- **Onde:** `git status` — `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `context/`, `fontes/`, `lint.py` como `??` (untracked)
+- **Reprodução:** estático — `git status --short` em 2026-10-17 listava os 12 arquivos como não rastreados e `git log -- context/` não retornava nada
+- **Por que importa:** perda total de memória sem chance de recuperação; toda sessão de IA dependia do disco físico do Pedro estar intacto
+- **Fix recomendado:** commitar a memória. Custo: ~10min
+- **Estado:** corrigido
+- [2026-10-17] (i) Corrigido no commit `384afe8` (`chore: add project memory system`); `git log -- context/` agora responde.
+
+### [AUD-10] Pós-F5 a memória descrevia um projeto que não existe mais
+
+- **Severidade:** médio — IA lendo a memória em 2026-10-17 trataria AUD-04 como pendente (retrabalho), procuraria `handoff/` e `.cursorrules` inexistentes e veria o plano F0–F5 como não executado
+- **Onde:** `context/achados.md` (AUD-04/AUD-07 abertos, já resolvidos por F4/F5), `context/arquitetura.md:49-54` (fatos do `handoff/`, `handoff.md` e `.cursorrules`), `context/discussoes/gameplay-mobile.md` (checkboxes T0.1–T5.3 vazios)
+- **Reprodução:** estático — `ls handoff handoff.md .cursorrules` → inexistentes; comparar checkboxes com os commits `98361a9`…`7592d76`
+- **Por que importa:** correções ficam invisíveis (risco de reabrir o resolvido) e instruções apontam para arquivos fantasma
+- **Fix recomendado:** sincronizar os três arquivos com a realidade verificada. Custo: ~1h
+- **Estado:** corrigido
+- [2026-10-17] (i) Sincronizado em 2026-10-17: AUD-04/AUD-07 fechados com evidência de código, fatos do `handoff`/`.cursorrules` superseded em [[arquitetura#disco]], plano F0–F5 marcado com os commits. `evidencia` [[arquitetura#mapa]].
 
 ## Fechados {#fechados}
 
