@@ -18,8 +18,17 @@ loadClassicScript('icons.js');
 const { LEVELS } = await import('../levels-data.js');
 assert.equal(LEVELS.length, 20, 'o jogo deve ter exatamente 20 fases');
 
+// Botão de tela cheia do celular: o navegador do teste "suporta" a Fullscreen API.
+const fsCalls = [];
+env.document.fullscreenEnabled = true;
+env.document.documentElement.requestFullscreen = () => { fsCalls.push('enter'); return Promise.resolve(); };
+
 // Init completo roda aqui: loadLvl(0) + primeiro agendamento do loop.
 await import('../game.js');
+
+assert.notEqual(env.el('mobileFsBtn').hidden, true, 'botão de tela cheia aparece quando a Fullscreen API existe');
+env.click('mobileFsBtn');
+assert.deepEqual(fsCalls, ['enter'], 'tocar no botão de tela cheia pede requestFullscreen');
 
 // AUD-11: a guarda de boot do index.html recarrega a página se este sinal faltar.
 assert.equal(globalThis.__gameBooted, true, 'game.js sinaliza boot completo (window.__gameBooted)');

@@ -1,8 +1,8 @@
-// AUD-11: index.html (update() + guarda de boot) e game.js (__gameBooted). Bump v11→v12.
+// Botão de tela cheia no celular (index.html, style.css, game.js). Bump v12→v13.
 // REGRA: todo release que toca arquivo cacheado exige bump — sem ele,
 // clientes com SW instalado ficam no stale eterno (AUD-02). Depois do bump:
 // `npm run sw:lock` (o CI falha se um arquivo do ASSETS mudar sem bump).
-const CACHE = 'unicorn-v12';
+const CACHE = 'unicorn-v13';
 const ASSETS = [
   './',
   './index.html',

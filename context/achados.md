@@ -158,6 +158,7 @@ relacionado:
 - **Estado:** corrigido
 - [2026-10-17] (i) Causa no aparelho do Pedro ainda não confirmada — a reprodução é de laboratório; confirmar recarregando no celular.
 - [2026-10-17] (e) Corrigido (SW `unicorn-v12`): `index.html` chama `update()` a cada abertura e tem guarda de boot (`window.__gameBooted`, setado no fim do `game.js`; recarrega 1×, flag `bootRetry` em `sessionStorage`); `index.html` pede `game.js` sem `?v=`; `netlify.toml` reescreve `/game.js?v=…` para `legacy/v7-reload.js`. Laboratório (toque real via CDP, servidor imitando a regra): v7→novo começa **na 1ª visita**; v12→v13 atualiza entre a 1ª e a 3ª visita (antes: nenhuma em 3); `game.js` quebrado → 1 recarga, sem loop. Smoke cobre `__gameBooted`. Falta: conferir a regra no Netlify publicado (`curl` em `game.js?v=4.5`) e o teste no celular do Pedro.
+- [2026-10-17] (d) Pedro testou no celular dele depois do deploy: "funcionou". ← `fontes/2026-10-17-pedro-tela-cheia.md`
 
 ## Fechados {#fechados}
 

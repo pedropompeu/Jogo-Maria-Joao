@@ -1745,7 +1745,7 @@ function drawHUD() {
   ctx.fillText(timeStr, 170, cy);
   // lives as big hearts on the right
   const nHp = Math.min(p.hp, MAX_HP);
-  const hpX = CW - 14 - nHp * 26;
+  const hpX = CW - 14 - hudRightReserve - nHp * 26;
   for(let i=0; i<nHp; i++) {
     drawHeart(hpX + i*26, cy, 9, '#ff4466');
   }
@@ -2076,11 +2076,36 @@ bindBtn('btnRight','right',false);
 bindBtn('btnJump','jump',true);
 
 // fullscreen
-document.getElementById('fsBtn')?.addEventListener('click',()=>{
+function toggleFullscreen(){
   const el=document.documentElement;
-  if(!document.fullscreenElement) el.requestFullscreen?.();
+  if(!document.fullscreenElement){
+    // Em tela cheia o Android aceita travar em paisagem; fora dela o lock só rejeita.
+    el.requestFullscreen?.()?.then(()=>screen.orientation?.lock?.('landscape').catch(()=>{})).catch(()=>{});
+  }
   else document.exitFullscreen?.();
-});
+}
+document.getElementById('fsBtn')?.addEventListener('click',toggleFullscreen);
+
+// Botão de tela cheia do celular. Some onde não há o que fazer: iPhone (sem
+// Fullscreen API) e app instalado (o manifest já abre em display:fullscreen).
+const mobileFsBtn=document.getElementById('mobileFsBtn');
+let hudRightReserve=0; // unidades do canvas que os corações do HUD mobile cedem ao botão
+function updateHudRightReserve(){
+  if(!isMobile || !mobileFsBtn || mobileFsBtn.hidden){ hudRightReserve=0; return; }
+  const b=mobileFsBtn.getBoundingClientRect(), c=canvas.getBoundingClientRect();
+  hudRightReserve = c.width ? Math.ceil((c.right-b.left)*CW/c.width) : 0;
+}
+if(mobileFsBtn){
+  if(!document.fullscreenEnabled || window.matchMedia('(display-mode: fullscreen)').matches) mobileFsBtn.hidden=true;
+  mobileFsBtn.addEventListener('click',toggleFullscreen);
+  document.addEventListener('fullscreenchange',()=>{
+    mobileFsBtn.setAttribute('aria-pressed', document.fullscreenElement ? 'true' : 'false');
+    mobileFsBtn.setAttribute('aria-label', document.fullscreenElement ? 'Sair da tela cheia' : 'Tela cheia');
+    updateHudRightReserve();
+  });
+  window.addEventListener('resize',updateHudRightReserve);
+  updateHudRightReserve();
+}
 
 // ─── GAME FLOW ─────────────────────────────────────────────────────────────
 function startGame() {

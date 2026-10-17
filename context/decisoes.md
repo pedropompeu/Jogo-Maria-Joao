@@ -69,6 +69,11 @@ criado: 2026-09-12
   **Fecha:** AUD-11 em [[achados#abertos]].
   **Descartado:** mover `game.js` de caminho (mudança estrutural); só pedir para recarregar (cada criança cairia uma vez no menu morto).
 
+- [2026-10-17] (i) **Botão de tela cheia do celular no canto superior direito (`#mobileFsBtn`), e os corações do HUD recuam para ele.** Pedido do Pedro ← `fontes/2026-10-17-pedro-tela-cheia.md`.
+  **Por quê:** no toque o `#ui` inteiro some (e com ele o `#fsBtn`); o canto superior direito fica longe dos polegares (d-pad e pulo moram embaixo) e não cobre o título da tela inicial. O botão some sem Fullscreen API (iPhone) e no app instalado (o manifest já abre em `display: fullscreen`). Ao entrar em tela cheia, tenta travar em paisagem — o Android só aceita o lock nesse modo.
+  **Fecha:** como a criança põe o jogo em tela cheia no navegador do celular.
+  **Descartado:** entrar em tela cheia sozinho no "Começar Aventura!" (muda o fluxo sem pedido); botão embaixo, no meio dos controles (toque acidental no meio da fase).
+
 ## Expansão pós-F5 {#expansao}
 
 > Fechadas na revisão do brainstorm [[organizacao-expansao]]. Respostas cruas em

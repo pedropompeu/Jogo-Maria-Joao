@@ -59,3 +59,4 @@ nada.
 | `2026-10-17-pedro-decisoes-onda-2.md` | 2026-10-17 | Pedro Pompeu | Respostas coladas da página de decisões da revisão do brainstorm `organizacao-expansao` | `context/decisoes.md#expansao`, `context/roadmap.md`, `context/discussoes/organizacao-expansao.md#aberto` |
 | `2026-10-17-pedro-bug-celular.md` | 2026-10-17 | Pedro Pompeu | Respostas no chat: playtest como condição, melhorar jogabilidade das 20 fases, bug no celular | `context/roadmap.md#onda-1`, `context/achados.md#abertos` (AUD-11) |
 | `2026-10-17-pedro-gatilho-onda-2.md` | 2026-10-17 | Pedro Pompeu | Resposta no chat sobre o que é "terminar as 20" | `context/decisoes.md#expansao`, `context/roadmap.md#onda-1` |
+| `2026-10-17-pedro-tela-cheia.md` | 2026-10-17 | Pedro Pompeu | Resposta no chat: confirmação de que a correção do celular funcionou + pedido de botão de tela cheia | `context/achados.md#abertos` (AUD-11), `context/roadmap.md#onda-1`, `context/decisoes.md#qualidade` |

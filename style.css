@@ -232,7 +232,8 @@ body {
 }
 
 /* ── Mobile controls ── */
-#mobile-controls {
+#mobile-controls,
+#mobileFsBtn {
   display: none;
 }
 @media (pointer: coarse) and (hover: none) {
@@ -269,7 +270,22 @@ body {
     pointer-events: none;
     z-index: 20;
   }
+
+  /* Canto superior direito, longe dos polegares; o HUD do canvas recua os
+     corações para não ficar embaixo dele (hudRightReserve no game.js). */
+  #mobileFsBtn {
+    display: flex;
+    position: fixed;
+    top: max(6px, env(safe-area-inset-top));
+    right: max(8px, env(safe-area-inset-right));
+    width: 44px; height: 44px;
+    z-index: 21;
+  }
+  #mobileFsBtn[hidden] { display: none; }
 }
+#mobileFsBtn .fs-exit,
+#mobileFsBtn[aria-pressed="true"] .fs-enter { display: none; }
+#mobileFsBtn[aria-pressed="true"] .fs-exit { display: block; }
 .d-pad { display: flex; gap: 10px; pointer-events: auto; padding-bottom: 12px; }
 .action-buttons { display: flex; gap: 10px; pointer-events: auto; padding-bottom: 12px; }
 

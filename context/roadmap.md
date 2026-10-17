@@ -25,6 +25,8 @@ relacionado:
   - [2026-10-17] (d) Playtest com crianças (T5.3 em [[gameplay-mobile#plano]]) entra como condição. ← `fontes/2026-10-17-pedro-bug-celular.md`
   - [2026-10-17] (d) Melhorar a jogabilidade das fases 1 a 20 — o que "melhorar" significa ainda não foi detalhado.
   - [2026-10-17] (d) O jogo precisa funcionar no celular — Pedro não conseguiu começar a jogar num Android. `bloqueia` [[roadmap#onda-2]]; ver [[achados#abertos]] (AUD-11).
+    - [2026-10-17] (d) ✅ Pedro confirmou no celular: "funcionou" (`ddcfd2e`). ← `fontes/2026-10-17-pedro-tela-cheia.md`
+    - [2026-10-17] (d) ✅ Botão de tela cheia no celular, pedido na sequência (commit pendente). Ver [[decisoes#qualidade]].
 
 ## Onda 2 — os sobrinhos no jogo {#onda-2}
 
