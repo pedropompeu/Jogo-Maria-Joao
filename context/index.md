@@ -28,7 +28,7 @@ Cada linha diz o que o arquivo tem e quando ele importa.
 
 ## Discussões em aberto
 
-- [[organizacao-expansao]] — organizar o repositório/memória e priorizar os vetores de expansão (produto, técnica, método, distribuição). Sprint 0 e testes/CI autorizados em 2026-10-17.
+- [[organizacao-expansao]] — organizar o repositório/memória e priorizar os vetores de expansão (produto, técnica, método, distribuição). Inclui a organização atual, onde cada vetor mexe e a sequência sugerida. Sprint 0 e testes/CI autorizados em 2026-10-17.
 
 *Última fechada: [[gameplay-mobile]] → decisões em [[decisoes#jogo]].*
 
