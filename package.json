@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Plataformer HTML5 do unicórnio — sem dependências npm; package.json existe para tooling Node (testes/CI).",
   "scripts": {
-    "test": "node tests/smoke.mjs && node tools/validate-levels.mjs",
+    "test": "node tests/smoke.mjs && node tools/validate-levels.mjs && node tools/check-sw-cache.mjs",
+    "sw:lock": "node tools/check-sw-cache.mjs --update",
     "test:storage-blocked": "SMOKE_THROW_STORAGE=1 node tests/smoke.mjs",
     "lint": "python lint.py"
   },

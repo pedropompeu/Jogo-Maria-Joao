@@ -1,6 +1,7 @@
 // F6: icons.js entra no cache (dependência nova). Bump v9→v10.
 // REGRA: todo release que toca arquivo cacheado exige bump — sem ele,
-// clientes com SW instalado ficam no stale eterno (AUD-02).
+// clientes com SW instalado ficam no stale eterno (AUD-02). Depois do bump:
+// `npm run sw:lock` (o CI falha se um arquivo do ASSETS mudar sem bump).
 const CACHE = 'unicorn-v10';
 const ASSETS = [
   './',

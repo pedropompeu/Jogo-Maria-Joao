@@ -25,6 +25,9 @@ jobs:
       - name: Validador estático das fases
         run: node tools/validate-levels.mjs
 
+      - name: Bump do cache do SW (regressão AUD-02)
+        run: node tools/check-sw-cache.mjs
+
       - name: Smoke test (storage normal)
         run: node tests/smoke.mjs
 
