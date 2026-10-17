@@ -48,7 +48,8 @@ relacionado:
 | Jogo (atores) | `characters.js` (globais `ch_*`) + `game.js` (`resetP:110`, `initBoss:437`, `updatePlayer:734`) | Unicórnio, slime/bat/spike/bee, boss (2HP), fireballs | Inimigos não têm gravidade: `y=null` = voa no plano do chão (gY−38), inclusive sobre vãos — documentado no validador |
 | Jogo (UI) | `index.html:19-139`, `style.css`, `brand/design-tokens.css` | HUD, 8 overlays, d-pad touch, rotate-overlay, toast | a11y aplicada em F4 (AUD-04 fechado 2026-10-17); manter `:focus`/`aria-live` ao mexer |
 | Jogo (save) | `game.js:13-29` (`sGet/sSet/sGetJSON`) + 9 keys `unicorn*` em `localStorage` | Dificuldade, desbloqueio, estrelas, recordes, mute, cosméticos (`unicornCosmetics`) | Sempre usar `sGet/sSet` (fallback em memória) — AUD-03 é regressão coberta pelo smoke |
-| PWA/deploy | `sw.js` (`CACHE unicorn-v11`), `manifest.json`, `index.html:156-182`, `netlify.toml` | Cache-first + fallback, instalabilidade, publish Netlify | Toda mudança em arquivo cacheado exige bump do `CACHE` (regra no topo de `sw.js`) |
+| PWA/deploy | `sw.js` (`CACHE unicorn-v12`), `manifest.json`, `index.html:156-182`, `netlify.toml` | Cache-first + fallback, instalabilidade, publish Netlify; `register().then(r => r.update())` a cada abertura; guarda de boot recarrega 1× se `window.__gameBooted` faltar | Toda mudança em arquivo cacheado exige bump do `CACHE` (regra no topo de `sw.js`) |
+| Resgate v7 | `legacy/v7-reload.js` + `[[redirects]]` em `netlify.toml` (`/game.js` com só `?v=` → resgate, `force`) | Aparelho com o SW de maio pede `game.js?v=4.5`; recebe um script que atualiza o SW e recarrega 1× | O `index.html` atual **não pode** voltar a pedir `game.js?v=…`, senão cai no resgate. Fora do `ASSETS` de propósito |
 
 ## Estado do código em disco {#disco}
 

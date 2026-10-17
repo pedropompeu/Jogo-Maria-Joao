@@ -155,11 +155,28 @@
 
 <script src="characters.js?v=1.0"></script>
 <script src="icons.js?v=1.0"></script>
-<script type="module" src="game.js?v=5.0"></script>
+<!-- AUD-11: sem ?v= de propósito — o netlify.toml reescreve game.js?v=… (só o index de maio pede assim) para legacy/v7-reload.js -->
+<script type="module" src="game.js"></script>
 <script>
+  // AUD-11: update() a cada abertura — sem ele o navegador pode passar várias
+  // visitas sem checar o sw.js e a criança fica na versão velha.
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js').then(r => r.update()).catch(() => {});
   }
+
+  // AUD-11: guarda de boot. Se o game.js não subiu (versões misturadas pelo
+  // cache do SW, rede caindo no meio do load), recarrega uma única vez.
+  window.addEventListener('load', () => {
+    let tried = false;
+    try { tried = sessionStorage.getItem('bootRetry') === '1'; } catch (_) { return; }
+    if (window.__gameBooted) {
+      try { sessionStorage.removeItem('bootRetry'); } catch (_) {}
+      return;
+    }
+    if (tried) return;
+    try { sessionStorage.setItem('bootRetry', '1'); } catch (_) { return; }
+    location.reload();
+  });
 
   // Prompt de instalação PWA
   let _installPrompt = null;

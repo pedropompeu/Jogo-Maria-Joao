@@ -2275,5 +2275,6 @@ muteBtn?.addEventListener('click', ()=>{
 ui('bestDisp', best);
 loadLvl(0); // pre-load so bg shows on start screen
 loop();
+window.__gameBooted = true; // AUD-11: a guarda de boot do index.html confere este sinal
 
 })();

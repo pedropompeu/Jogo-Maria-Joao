@@ -64,6 +64,11 @@ criado: 2026-09-12
   **Fecha:** Como validar mudança de código e de fase a partir de agora. `[[organizacao-expansao#opcoes]]` (Eixo 2).
   **Descartado:** E2E em browser real (Playwright etc.) neste momento — dependeria de biblioteca externa e de nova validação; o smoke headless cobre o essencial até lá.
 
+- [2026-10-17] (i) **Resgate do SW de maio via regra do Netlify, sem mexer em estrutura do jogo.** `game.js?v=…` (só o `index.html` de maio pede assim) → `legacy/v7-reload.js`, que atualiza o SW e recarrega 1×.
+  **Por quê:** o SW `unicorn-v7` serve o `index.html` velho de cache e não há como mudar código que já está no aparelho; o único ponto controlável é a resposta da rede. O Netlify não casa valor de query, só presença — por isso o `index.html` atual deixou de usar `?v=`.
+  **Fecha:** AUD-11 em [[achados#abertos]].
+  **Descartado:** mover `game.js` de caminho (mudança estrutural); só pedir para recarregar (cada criança cairia uma vez no menu morto).
+
 ## Expansão pós-F5 {#expansao}
 
 > Fechadas na revisão do brainstorm [[organizacao-expansao]]. Respostas cruas em

@@ -12,3 +12,13 @@
   for = "/manifest.json"
   [headers.values]
     Content-Type = "application/manifest+json"
+
+# AUD-11: só o index.html de maio (SW unicorn-v7) pede game.js?v=… pela rede —
+# o atual pede game.js sem query. Regra com query casa só URLs com exatamente
+# esse parâmetro; force porque /game.js existe.
+[[redirects]]
+  from = "/game.js"
+  to = "/legacy/v7-reload.js"
+  status = 200
+  force = true
+  query = {v = ":v"}

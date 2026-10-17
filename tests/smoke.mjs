@@ -21,6 +21,9 @@ assert.equal(LEVELS.length, 20, 'o jogo deve ter exatamente 20 fases');
 // Init completo roda aqui: loadLvl(0) + primeiro agendamento do loop.
 await import('../game.js');
 
+// AUD-11: a guarda de boot do index.html recarrega a página se este sinal faltar.
+assert.equal(globalThis.__gameBooted, true, 'game.js sinaliza boot completo (window.__gameBooted)');
+
 assert.equal(String(env.el('lvlDisp').textContent), '1', 'HUD mostra fase 1 após init');
 assert.equal(String(env.el('livesDisp').textContent), '3', 'HUD mostra 3 vidas na dificuldade normal');
 assert.equal(String(env.el('bestDisp').textContent), '0', 'recorde começa em 0');

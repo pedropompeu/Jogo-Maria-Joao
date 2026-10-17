@@ -1,8 +1,8 @@
-// F6: icons.js entra no cache (dependência nova). Bump v9→v10.
+// AUD-11: index.html (update() + guarda de boot) e game.js (__gameBooted). Bump v11→v12.
 // REGRA: todo release que toca arquivo cacheado exige bump — sem ele,
 // clientes com SW instalado ficam no stale eterno (AUD-02). Depois do bump:
 // `npm run sw:lock` (o CI falha se um arquivo do ASSETS mudar sem bump).
-const CACHE = 'unicorn-v11';
+const CACHE = 'unicorn-v12';
 const ASSETS = [
   './',
   './index.html',

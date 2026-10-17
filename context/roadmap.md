@@ -21,7 +21,10 @@ relacionado:
 - [2026-10-17 ~superseded 2026-10-17] (e) ~~✅ Checagem de bump do cache do SW no CI (`tools/check-sw-cache.mjs`, commit pendente).~~ → ✅ entregue em `bf302b0`. `justifica` [[decisoes#expansao]].
 - [2026-10-17] (d) **Fechar as pendências das 20 fases existentes.** É o que libera a Onda 2. Lista ainda não levantada. `bloqueia` [[roadmap#onda-2]]; `justifica` [[decisoes#expansao]].
   - [2026-10-17] (e) ✅ Fase 6: `bossX:3500` explícito (era o default implícito; comportamento igual). Validador sem avisos; cache do SW em `unicorn-v11`.
-  - [2026-10-17] (e) Candidata ainda sem decisão: playtest com crianças (T5.3 em [[gameplay-mobile#plano]]), se entra ou não como condição.
+  - [2026-10-17 ~superseded 2026-10-17] (e) ~~Candidata ainda sem decisão: playtest com crianças (T5.3 em [[gameplay-mobile#plano]]), se entra ou não como condição.~~ → decidido abaixo.
+  - [2026-10-17] (d) Playtest com crianças (T5.3 em [[gameplay-mobile#plano]]) entra como condição. ← `fontes/2026-10-17-pedro-bug-celular.md`
+  - [2026-10-17] (d) Melhorar a jogabilidade das fases 1 a 20 — o que "melhorar" significa ainda não foi detalhado.
+  - [2026-10-17] (d) O jogo precisa funcionar no celular — Pedro não conseguiu começar a jogar num Android. `bloqueia` [[roadmap#onda-2]]; ver [[achados#abertos]] (AUD-11).
 
 ## Onda 2 — os sobrinhos no jogo {#onda-2}
 

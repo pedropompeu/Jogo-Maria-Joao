@@ -148,6 +148,17 @@ relacionado:
 - **Estado:** corrigido
 - [2026-10-17] (i) Sincronizado em 2026-10-17: AUD-04/AUD-07 fechados com evidência de código, fatos do `handoff`/`.cursorrules` superseded em [[arquitetura#disco]], plano F0–F5 marcado com os commits. `evidencia` [[arquitetura#mapa]].
 
+### [AUD-11] Celular que jogou a versão de maio abre o menu morto na primeira visita
+
+- **Severidade:** alto — a criança vê o menu, toca em "Começar Aventura!" e nada acontece; parece que o jogo não funciona no celular
+- **Onde:** SW antigo `unicorn-v7` (`bda1dc3:sw.js`, sem `ignoreSearch`) servindo o `index.html` antigo de cache com `game.js?v=4.5` vindo da rede; `sw.js` atual (cache-first, sem `update()` explícito)
+- **Reprodução:** [2026-10-17] (e) Pedro: "abriu, mas o toque não funcionava", "ñ da nem pra começar a jogar", Android Motorola, menu aparece deitado ← `fontes/2026-10-17-pedro-bug-celular.md`. Em laboratório (Chromium headless, toque real via CDP, servidor local trocando a versão): visitar `bda1dc3` (v7) 2×, "deployar" HEAD, revisitar → `SyntaxError: Cannot use import statement outside a module`, toque em Começar não faz nada; **na 2ª visita já funciona**. De `39fb720` (v9) e `7592d76` (v10) para HEAD não quebra, mas o SW **não se atualizou em 3 navegações** — só com `registration.update()` explícito. Site publicado com toque real em 780×300: funciona.
+- **Por que importa:** todo aparelho que abriu o jogo antes de F0 tem uma primeira abertura quebrada; e a atualização depende do navegador decidir checar o `sw.js`, o que pode atrasar correções
+- **Fix recomendado:** (1) curto prazo: recarregar a página uma vez; (2) chamar `registration.update()` no load; (3) guarda de boot no `index.html`: se `game.js` não sinalizar que subiu, recarregar uma vez (flag em `sessionStorage`). Custo: ~1h
+- **Estado:** corrigido
+- [2026-10-17] (i) Causa no aparelho do Pedro ainda não confirmada — a reprodução é de laboratório; confirmar recarregando no celular.
+- [2026-10-17] (e) Corrigido (SW `unicorn-v12`): `index.html` chama `update()` a cada abertura e tem guarda de boot (`window.__gameBooted`, setado no fim do `game.js`; recarrega 1×, flag `bootRetry` em `sessionStorage`); `index.html` pede `game.js` sem `?v=`; `netlify.toml` reescreve `/game.js?v=…` para `legacy/v7-reload.js`. Laboratório (toque real via CDP, servidor imitando a regra): v7→novo começa **na 1ª visita**; v12→v13 atualiza entre a 1ª e a 3ª visita (antes: nenhuma em 3); `game.js` quebrado → 1 recarga, sem loop. Smoke cobre `__gameBooted`. Falta: conferir a regra no Netlify publicado (`curl` em `game.js?v=4.5`) e o teste no celular do Pedro.
+
 ## Fechados {#fechados}
 
 *Nenhum achado arquivado.*
