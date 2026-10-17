@@ -28,7 +28,9 @@ Cada linha diz o que o arquivo tem e quando ele importa.
 
 ## Discussões em aberto
 
-*Nenhuma discussão em aberto no momento. Última fechada: [[gameplay-mobile]] → decisões em [[decisoes#jogo]].*
+- [[organizacao-expansao]] — organizar o repositório/memória e priorizar os vetores de expansão (produto, técnica, método, distribuição). Sprint 0 e testes/CI autorizados em 2026-10-17.
+
+*Última fechada: [[gameplay-mobile]] → decisões em [[decisoes#jogo]].*
 
 ## Régua que vale pro projeto inteiro
 

@@ -56,3 +56,10 @@ criado: 2026-09-12
   **Por quê:** O ecossistema engloba tanto plataformas proprietárias (ViaXen, PomPay, NarraVox) quanto soluções sob demanda para clientes, exigindo rigor técnico e separação clara de escopos.
   **Fecha:** Modelo operacional do repositório e da orquestração de IAs.
   **Descartado:** Tratar todos os repositórios como projetos descartáveis de cliente ou exclusivamente internos.
+
+## Qualidade e Ferramentas {#qualidade}
+
+- [2026-10-17] (d) **Testes e CI sem dependências externas, antes de expandir conteúdo.**
+  **Por quê:** A rede de proteção precisa rodar sozinha a cada mudança: smoke headless do jogo (init, Começar Aventura, quadros e cenário de storage bloqueado), validador estático das 20 fases e CI no GitHub Actions rodando também `python lint.py`. Implementado sem npm deps — o projeto segue sem build e sem instalação.
+  **Fecha:** Como validar mudança de código e de fase a partir de agora. `[[organizacao-expansao#opcoes]]` (Eixo 2).
+  **Descartado:** E2E em browser real (Playwright etc.) neste momento — dependeria de biblioteca externa e de nova validação; o smoke headless cobre o essencial até lá.
