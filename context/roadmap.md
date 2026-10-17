@@ -20,6 +20,8 @@ relacionado:
 - [2026-10-17] (e) ✅ Memória versionada (`384afe8`), smoke + validador + CI (`a93e038`). `justifica` [[decisoes#qualidade]].
 - [2026-10-17 ~superseded 2026-10-17] (e) ~~✅ Checagem de bump do cache do SW no CI (`tools/check-sw-cache.mjs`, commit pendente).~~ → ✅ entregue em `bf302b0`. `justifica` [[decisoes#expansao]].
 - [2026-10-17] (d) **Fechar as pendências das 20 fases existentes.** É o que libera a Onda 2. Lista ainda não levantada. `bloqueia` [[roadmap#onda-2]]; `justifica` [[decisoes#expansao]].
+  - [2026-10-17] (e) ✅ Fase 6: `bossX:3500` explícito (era o default implícito; comportamento igual). Validador sem avisos; cache do SW em `unicorn-v11`.
+  - [2026-10-17] (e) Candidata ainda sem decisão: playtest com crianças (T5.3 em [[gameplay-mobile#plano]]), se entra ou não como condição.
 
 ## Onda 2 — os sobrinhos no jogo {#onda-2}
 

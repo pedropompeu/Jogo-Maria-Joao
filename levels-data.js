@@ -192,7 +192,7 @@ export const LEVELS = [
     cps:[[1640,425],[2350,315],[3820,520]], // F2: +[2320,315] antes da arena; estáticas e chão
     powerups:[[1600,395,'star'],[2320,285,'shield']],
     hazards:[[240,410,22,20,'spike'],[940,315,22,20,'spike'],[3060,195,22,20,'spike']],
-    portal:[3870,415], hasBoss:true, start:[60,450] },
+    portal:[3870,415], hasBoss:true, bossX:3500, start:[60,450] },
 
   { name:'Praia Mágica', emoji:'🌊', time:115, lw:3400, gY:520,
     theme:'beach', tip:'As estrelas-do-mar rolam rápido — dê um salto duplo para desviar!',

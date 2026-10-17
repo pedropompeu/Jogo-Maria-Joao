@@ -48,7 +48,7 @@ relacionado:
 | Jogo (atores) | `characters.js` (globais `ch_*`) + `game.js` (`resetP:110`, `initBoss:437`, `updatePlayer:734`) | Unicórnio, slime/bat/spike/bee, boss (2HP), fireballs | Inimigos não têm gravidade: `y=null` = voa no plano do chão (gY−38), inclusive sobre vãos — documentado no validador |
 | Jogo (UI) | `index.html:19-139`, `style.css`, `brand/design-tokens.css` | HUD, 8 overlays, d-pad touch, rotate-overlay, toast | a11y aplicada em F4 (AUD-04 fechado 2026-10-17); manter `:focus`/`aria-live` ao mexer |
 | Jogo (save) | `game.js:13-29` (`sGet/sSet/sGetJSON`) + 9 keys `unicorn*` em `localStorage` | Dificuldade, desbloqueio, estrelas, recordes, mute, cosméticos (`unicornCosmetics`) | Sempre usar `sGet/sSet` (fallback em memória) — AUD-03 é regressão coberta pelo smoke |
-| PWA/deploy | `sw.js` (`CACHE unicorn-v10`), `manifest.json`, `index.html:156-182`, `netlify.toml` | Cache-first + fallback, instalabilidade, publish Netlify | Toda mudança em arquivo cacheado exige bump do `CACHE` (regra no topo de `sw.js`) |
+| PWA/deploy | `sw.js` (`CACHE unicorn-v11`), `manifest.json`, `index.html:156-182`, `netlify.toml` | Cache-first + fallback, instalabilidade, publish Netlify | Toda mudança em arquivo cacheado exige bump do `CACHE` (regra no topo de `sw.js`) |
 
 ## Estado do código em disco {#disco}
 
