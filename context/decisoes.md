@@ -87,9 +87,12 @@ criado: 2026-09-12
 - [2026-10-17] (d) **Um mundo novo (fases 21+) abre depois da Onda 2, "em outro momento".** As 20 fases de [[decisoes#jogo]] seguem sendo o jogo atual.
   **Fecha:** se a contagem de 20 é teto — não é.
   **Descartado:** não abrir mundo novo; abrir já na Onda 2.
-- [2026-10-17] (d) **Onda 2 começa "depois que terminar todas as 20 primeiros".** A leitura dessa condição está em aberto → [[organizacao-expansao#aberto]].
+- [2026-10-17 ~superseded 2026-10-17] (d) ~~**Onda 2 começa "depois que terminar todas as 20 primeiros".** A leitura dessa condição está em aberto → [[organizacao-expansao#aberto]].~~ → leitura fechada na decisão seguinte.
   **Fecha:** a Onda 2 não começa pelo playtest nem pelas fases 21+.
   **Descartado:** playtest → João → loja; João → loja direto; fases 21+ e checagem do SW primeiro.
+- [2026-10-17] (d) **"Terminar as 20" é fechar as pendências das 20 fases existentes; só então a Onda 2 começa.** ← `fontes/2026-10-17-pedro-gatilho-onda-2.md`
+  **Fecha:** o gatilho da Onda 2 em [[organizacao-expansao#aberto]].
+  **Descartado:** esperar as crianças zerarem as 20 fases.
 - [2026-10-17] (d) **Os custos marcados `(d)` no brainstorm são do Pedro, mas são estimativas negociáveis, não regras.**
   **Fecha:** a procedência das tabelas de [[organizacao-expansao#opcoes]].
   **Descartado:** rebaixar os custos para `(i)`.

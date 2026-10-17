@@ -18,12 +18,14 @@ relacionado:
 ## Onda 1 — organização e rede de proteção {#onda-1}
 
 - [2026-10-17] (e) ✅ Memória versionada (`384afe8`), smoke + validador + CI (`a93e038`). `justifica` [[decisoes#qualidade]].
-- [2026-10-17] (e) ✅ Checagem de bump do cache do SW no CI (`tools/check-sw-cache.mjs`, commit pendente). `justifica` [[decisoes#expansao]].
+- [2026-10-17 ~superseded 2026-10-17] (e) ~~✅ Checagem de bump do cache do SW no CI (`tools/check-sw-cache.mjs`, commit pendente).~~ → ✅ entregue em `bf302b0`. `justifica` [[decisoes#expansao]].
+- [2026-10-17] (d) **Fechar as pendências das 20 fases existentes.** É o que libera a Onda 2. Lista ainda não levantada. `bloqueia` [[roadmap#onda-2]]; `justifica` [[decisoes#expansao]].
 
 ## Onda 2 — os sobrinhos no jogo {#onda-2}
 
-> Começa "depois que terminar todas as 20 primeiros" — a leitura dessa condição está em
-> [[organizacao-expansao#aberto]]. A ordem interna entre os itens também não foi fixada.
+> ~~Começa "depois que terminar todas as 20 primeiros" — a leitura dessa condição está em
+> [[organizacao-expansao#aberto]].~~ ~superseded 2026-10-17 → começa depois de fechar as
+> pendências das 20 fases ([[roadmap#onda-1]]). A ordem interna entre os itens não foi fixada.
 
 - [2026-10-17] (d) **João e Maria montados no unicórnio.** Custo de referência ~4h. `justifica` [[decisoes#expansao]].
 - [2026-10-17] (d) **Loja de itens novos por troca de pontos.** Custo de referência ~6h. Bloqueada pelo esquema de pontuação ([[organizacao-expansao#aberto]]). `justifica` [[decisoes#expansao]].

@@ -129,7 +129,7 @@ distribuição?
 
 ## Ainda em aberto {#aberto}
 
-- [2026-10-17] (d) **Quando a Onda 2 começa:** "depois que terminar todas as 20 primeiros". Falta Pedro dizer o que é "terminar": as crianças zerarem as 20 fases, ou fechar pendências das 20 fases existentes antes de conteúdo novo. `bloqueia` [[roadmap#onda-2]].
+- [2026-10-17 ~superseded 2026-10-17] (d) ~~**Quando a Onda 2 começa:** "depois que terminar todas as 20 primeiros". Falta Pedro dizer o que é "terminar": as crianças zerarem as 20 fases, ou fechar pendências das 20 fases existentes antes de conteúdo novo. `bloqueia` [[roadmap#onda-2]].~~ → (d) "terminar as 20 é fechar as pendências das fases" — fechado em [[decisoes#expansao]]. Falta a lista das pendências, que ainda não foi levantada.
 - [2026-10-17] (d) **Esquema de pontuação da loja:** "precisamos pensar em um esquema de pontuação para recuperar itens da loja". Em aberto: de onde vêm os pontos (moedas, estrelas, conquistas, recordes), se acumulam entre fases, preço dos itens. Regra de economia → validar com Pedro. `bloqueia` [[roadmap#onda-2]].
 - [2026-10-17] (d) **Desafios +16:** "podemos ter desafios +16" — forma e escopo não definidos.
 - [2026-10-17 ~superseded 2026-10-17] (e) ~~**`.netlify/` no git:** pergunta sem resposta na página de decisões → AUD-06 segue aberto em [[achados#abertos]].~~ → (d) Pedro autorizou; desrastreado, AUD-06 corrigido em [[achados#abertos]].
@@ -143,3 +143,4 @@ distribuição?
   nenhuma melhoria de produto será implementada até a ordem ser definida.
 - [2026-10-17] (d) **Revisão respondida:** 12 de 13 decisões fechadas em [[decisoes#expansao]]; a checagem do SW foi
   autorizada e implementada; o `.netlify/` foi desrastreado por autorização posterior. Seguem abertas as questões de [[organizacao-expansao#aberto]].
+- [2026-10-17] (d) **Gatilho da Onda 2 fechado:** "terminar as 20" = fechar as pendências das 20 fases. 13 de 13 respondidas.

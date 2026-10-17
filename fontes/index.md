@@ -57,3 +57,4 @@ nada.
 | Arquivo | Recebido | De quem | O que é | Virou |
 |---|---|---|---|---|
 | `2026-10-17-pedro-decisoes-onda-2.md` | 2026-10-17 | Pedro Pompeu | Respostas coladas da página de decisões da revisão do brainstorm `organizacao-expansao` | `context/decisoes.md#expansao`, `context/roadmap.md`, `context/discussoes/organizacao-expansao.md#aberto` |
+| `2026-10-17-pedro-gatilho-onda-2.md` | 2026-10-17 | Pedro Pompeu | Resposta no chat sobre o que é "terminar as 20" | `context/decisoes.md#expansao`, `context/roadmap.md#onda-1` |

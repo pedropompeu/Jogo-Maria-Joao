@@ -29,7 +29,7 @@ Cada linha diz o que o arquivo tem e quando ele importa.
 
 ## Discussões em aberto
 
-- [[organizacao-expansao]] — organizar o repositório/memória e priorizar os vetores de expansão. Revisão respondida (12 de 13 decisões em `decisoes.md`, ordem em `roadmap.md`); seguem abertos o gatilho da Onda 2, o esquema de pontos da loja e os desafios +16.
+- [[organizacao-expansao]] — organizar o repositório/memória e priorizar os vetores de expansão. Revisão respondida (12 de 13 decisões em `decisoes.md`, ordem em `roadmap.md`); gatilho da Onda 2 fechado (pendências das 20 fases); seguem abertos o esquema de pontos da loja e os desafios +16.
 
 *Última fechada: [[gameplay-mobile]] → decisões em [[decisoes#jogo]].*
 
