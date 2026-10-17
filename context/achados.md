@@ -179,6 +179,15 @@ relacionado:
 - **Fix recomendado:** jogar as fases com espinhos e decidir com o Pedro se a hitbox cresce, o desenho encolhe ou fica como está (hitbox menor que o desenho é comum e costuma ser "a favor" do jogador). Custo: ~30min de teste
 - **Estado:** aberto
 
+### [AUD-14] No celular deitado o jogo aparece esticado para os lados
+
+- **Severidade:** médio — o unicórnio, os inimigos e as fases ficam achatados e largos no celular, justo onde as crianças mais jogam; o desenho novo perde a proporção que o Pedro ajustou
+- **Onde:** `style.css:259-264` (`#gameCanvas { width: 100vw; height: 100dvh; }` no bloco de toque) com o canvas fixo em 1000×600 (`index.html:47`)
+- **Reprodução:** [2026-10-17] (e) celular deitado de 844×390: a tela tem proporção ~2,16:1 e o canvas é 5:3 (1,67:1), então tudo estica ~30% na horizontal. Visto nas capturas de tela do navegador durante a verificação do unicórnio novo
+- **Por que importa:** quanto mais comprido o celular, mais deformado; círculos viram ovais e a leitura de distância dos pulos muda
+- **Fix recomendado:** manter a proporção (faixas nas laterais com `object-fit: contain` ou cálculo de tamanho em JS) ou aumentar a área visível do mundo na largura (o CW passa a depender da tela, e câmera/HUD acompanham). A segunda opção muda o que a criança enxerga da fase, por isso precisa de decisão do Pedro. Custo: ~1h (faixas) a ~3h (área visível)
+- **Estado:** aberto
+
 ## Fechados {#fechados}
 
 *Nenhum achado arquivado.*
