@@ -102,6 +102,8 @@ relacionado:
 - **Fix recomendado:** criar `netlify.toml` na raiz (`publish="."`, headers para `sw.js`/`manifest`), adicionar `.netlify/` ao `.gitignore`. Custo: ~30min
 - **Estado:** corrigido
 - [2026-10-10] (i) Corrigido em F0/T0.4: `netlify.toml` criado (`publish="."`, `sw.js → no-cache`, manifest tipado); `.netlify/` ignorado. Falta confirmar no próximo deploy.
+- [2026-10-17] (e) ← `git ls-files .netlify` **Reaberto (parcial):** o `.gitignore` não desrastreia o que já estava versionado — `.netlify/netlify.toml` (`publish = "/home/usuario/Dev/Jogo-da-Maria"`, linha 10), `.netlify/state.json` e `.netlify/plugins/*` continuam no git. A parte do `netlify.toml` na raiz segue válida. Fix: `git rm -r --cached .netlify` (~5min).
+- [2026-10-17] (d) Pedro autorizou desrastrear. `git rm -r --cached .netlify` executado: os 4 arquivos saem do git e seguem no disco; o `.gitignore` passa a valer. `siteId` permanece no histórico antigo (não é segredo; reescrever histórico descartado).
 - [2026-10-10] (i) Auditoria estática 2026-10-10 `evidencia` [[arquitetura#integracoes]].
 
 ### [AUD-07] Memória do projeto descreve o template, não o jogo

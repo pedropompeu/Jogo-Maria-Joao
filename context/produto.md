@@ -32,6 +32,8 @@ relacionado:
 > O produto concreto deste repositório — plataformer HTML5 feito para a Maria e o João, sobrinhos do Pedro.
 
 - [2026-10-10] (d) **Público-alvo:** crianças de 8 a 14 anos, mobile primeiro. `justifica` [[decisoes#jogo]].
+- [2026-10-17] (d) **Faixa confirmada e desafios +16:** o público segue 8 a 14 anos; "podemos ter desafios +16" fica como possibilidade, sem escopo definido. `justifica` [[decisoes#expansao]].
+- [2026-10-17] (d) **João e Maria no jogo:** entram montados no unicórnio, que segue sendo o herói. `justifica` [[decisoes#expansao]].
 - [2026-10-10] (d) **Conteúdo e progressão:** 20 fases via `levels-data.js` como módulo ES, com progressão suave por desbloqueio; sistemas completos mantidos (4 power-ups, 3 dificuldades, speedrun). `justifica` [[decisoes#jogo]].
 - [2026-10-10] (d) **Identidade visual:** UI com brilho e unicórnio em destaque; as fases mantêm variedade de temas próprios. `justifica` [[decisoes#jogo]].
 - [2026-10-17] (e) ← `README.md` **Promessa central:** plataformer que "funciona offline" (PWA instalável em `sobrinhosdotiopedro.netlify.app`), 3 estrelas por fase, checkpoints e chefões; teclado e touch.

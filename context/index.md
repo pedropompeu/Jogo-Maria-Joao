@@ -23,12 +23,13 @@ Cada linha diz o que o arquivo tem e quando ele importa.
 | [`arquitetura.md`](arquitetura.md) | Stack e o mapa do código **verificado por leitura**, contra o que foi declarado | Ler ou escrever código, estimar esforço |
 | [`achados.md`](achados.md) | Bugs, furos e dívidas, com severidade, local, repro e fix. Formato em `#formato` | Antes de mexer em áreas críticas ou finalizar tarefas |
 | [`decisoes.md`](decisoes.md) | Log de decisões fechadas, com data, razão e alternativas descartadas | Antes de tomar decisões ou reabrir discussões |
+| [`roadmap.md`](roadmap.md) | O que vem depois, por onda e prioridade — só itens com decisão | Planejar o próximo ciclo ou escolher a próxima tarefa de produto |
 | [`discussoes/`](discussoes/) | Discussões **em aberto**, uma por arquivo. Viram fato em `decisoes.md` quando fecham | Retomar um assunto travado |
 | [`../fontes/`](../fontes/index.md) | Material bruto: mensagem, spec, contrato, transcript | Auditar de onde veio um fato `(e)` |
 
 ## Discussões em aberto
 
-- [[organizacao-expansao]] — organizar o repositório/memória e priorizar os vetores de expansão (produto, técnica, método, distribuição). Inclui a organização atual, onde cada vetor mexe e a sequência sugerida. Sprint 0 e testes/CI autorizados em 2026-10-17.
+- [[organizacao-expansao]] — organizar o repositório/memória e priorizar os vetores de expansão. Revisão respondida (12 de 13 decisões em `decisoes.md`, ordem em `roadmap.md`); seguem abertos o gatilho da Onda 2, o esquema de pontos da loja e os desafios +16.
 
 *Última fechada: [[gameplay-mobile]] → decisões em [[decisoes#jogo]].*
 

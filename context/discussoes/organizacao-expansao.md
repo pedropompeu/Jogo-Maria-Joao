@@ -46,7 +46,8 @@ distribuição?
 
 ### Regras práticas que toda melhoria herda {#regras-praticas}
 
-- [2026-10-17] (i) Mudou arquivo cacheado? Bump do `CACHE` em `sw.js` no mesmo commit.
+- [2026-10-17 ~superseded 2026-10-17] (i) ~~Mudou arquivo cacheado? Bump do `CACHE` em `sw.js` no mesmo commit.~~ → regra abaixo.
+- [2026-10-17] (e) ← `tools/check-sw-cache.mjs` Mudou arquivo cacheado? Bump do `CACHE` em `sw.js` e `npm run sw:lock` no mesmo commit — o CI falha sem os dois.
 - [2026-10-17] (i) Fase nova? Atualizar a contagem no `tools/validate-levels.mjs`, no `README.md`, no texto de vitória (`index.html`) e em `PHASE_ICONS` (`icons.js`).
 - [2026-10-17] (i) UI/overlay novo? Seguir os padrões de a11y conquistados na F4 (`role=dialog`, foco no overlay, `aria-live`).
 - [2026-10-17] (i) Save novo? Sempre via `sGet/sSet` (nunca `localStorage` direto) — o smoke cobre o cenário de storage bloqueado.
@@ -95,9 +96,9 @@ distribuição?
 ## Onde cada vetor mexe {#detalhe}
 
 - [2026-10-17] (i) **João jogável** — `characters.js` (novo desenho `ch_drawJoao`), `game.js` (select na tela inicial, key `unicornChar`, spawn/draw do player), `index.html`/`style.css` (UI do select). Depende de: nada. Pronto quando: a fase 1 é zerável com cada personagem.
-- [2026-10-17] (i) **Loja de cosméticos** — `game.js` (preços, gasto de moedas, aplicar cosmético no desenho), overlay novo, `style.css`. Depende de: save versionado (abaixo) para não quebrar a progressão existente. Pronto quando: comprar → recarregar → cosmético permanece.
+- [2026-10-17 ~superseded 2026-10-17] (i) ~~**Loja de cosméticos** — `game.js` (preços, gasto de moedas, aplicar cosmético no desenho), overlay novo, `style.css`. Depende de: save versionado (abaixo) para não quebrar a progressão existente. Pronto quando: comprar → recarregar → cosmético permanece.~~ → [[organizacao-expansao#revisao]]: cosméticos já existem por progresso e chave nova não quebra save antigo; loja por pontos em [[decisoes#expansao]].
 - [2026-10-17] (i) **Fases 21+** — `levels-data.js`, contagem no validador, `README.md`, texto de vitória e `PHASE_ICONS`. Depende de: nada — o validador já protege o schema. Custo: ~2h/mundo.
-- [2026-10-17] (i) **Coop local 2P** — `game.js` (input duplo, câmera, HP por jogador), `index.html` (HUD dividido), `characters.js` (2º player). Depende de: decisão de escopo — é o vetor de maior risco.
+- [2026-10-17 ~superseded 2026-10-17] (i) ~~**Coop local 2P**~~ → descartado em [[decisoes#expansao]]. Registro original: `game.js` (input duplo, câmera, HP por jogador), `index.html` (HUD dividido), `characters.js` (2º player). Depende de: decisão de escopo — é o vetor de maior risco.
 - [2026-10-17] (i) **Fantasma do speedrun** — `game.js` (gravação amostrada de posição no save local + render translúcido). Depende de: nada; validar o tamanho no `localStorage` (amostrar a cada N quadros).
 - [2026-10-17] (i) **Cutscenes leves** — `game.js` (estado de cena novo + botão pular), `characters.js` (poses). Depende de: nada.
 - [2026-10-17] (i) **Save versionado (pré-requisito da loja)** — `game.js` (key `unicornSaveVersion` + migração de progresso). Depende de: nada; destrava loja e export/import.
@@ -109,10 +110,29 @@ distribuição?
 > Sugestão da IA `(i)` — a ordem final é decisão de Pedro `(d)`.
 
 - [2026-10-17] (i) **Onda 1 (já feita):** organização da memória + testes/CI. Sem `(d)` pendente, sem risco.
-- [2026-10-17] (i) **Onda 2 (fundação + valor emocional):** João jogável → save versionado → loja de cosméticos. O João não bloqueia nada e é o item barato de alto impacto; a loja precisa do save versionado antes.
+- [2026-10-17 ~superseded 2026-10-17] (i) ~~**Onda 2 (fundação + valor emocional):**~~ → ordem decidida por Pedro em [[decisoes#expansao]] e em [[roadmap#onda-2]]. Registro original: João jogável → save versionado → loja de cosméticos. O João não bloqueia nada e é o item barato de alto impacto; a loja precisa do save versionado antes.
 - [2026-10-17] (i) **Onda 3 (conteúdo):** fases 21+ (~2h/mundo), aproveitando que validador e pipeline já protegem.
-- [2026-10-17] (i) **Onda 4 (apostas grandes):** coop local, fantasma e cutscenes — só depois de playtest real alimentar as preferências.
+- [2026-10-17 ~superseded 2026-10-17] (i) ~~**Onda 4 (apostas grandes):** coop local,~~ → coop descartado em [[decisoes#expansao]]; fantasma e cutscenes no [[roadmap#backlog]]. Registro original: fantasma e cutscenes — só depois de playtest real alimentar as preferências.
 - [2026-10-17] (i) **Transversal a todas as ondas:** playtest real vira `fontes/` e memória sincronizada no fim de cada ciclo (ritual do Eixo 3).
+
+## Revisão de 2026-10-17 {#revisao}
+
+> Revisão do brainstorm conferida contra o código (engenheiro + cliente + PM). As respostas
+> do Pedro estão em `fontes/2026-10-17-pedro-decisoes-onda-2.md` e foram registradas em
+> [[decisoes#expansao]]; a ordem vive em [[roadmap]].
+
+- [2026-10-17] (e) ← `game.js:1100-1101` Cosméticos já existem e são ganhos jogando: asas ao zerar a fase 3, coroa ao zerar a fase 5. Moedas não acumulam entre fases.
+- [2026-10-17] (e) ← `game.js:13-29` Save é por chave (`sGet/sSet`); uma chave nova de loja não altera as 9 chaves `unicorn*` existentes — save versionado não é pré-requisito da loja.
+- [2026-10-17] (e) ← `characters.js:146-425` O herói é o unicórnio (`ch_drawUnicorn`, ~280 linhas de arte); não há desenho de criança no jogo hoje.
+- [2026-10-17] (e) ← `git ls-files .netlify` `.netlify/` segue versionado apesar do `.gitignore` → AUD-06 reaberto em [[achados#abertos]].
+- [2026-10-17] (e) Lighthouse no CI exige pacote externo — a tabela do Eixo 4 o marcava `(i)`; pela governança é `(d)` e foi recusado por ora ([[decisoes#expansao]]).
+
+## Ainda em aberto {#aberto}
+
+- [2026-10-17] (d) **Quando a Onda 2 começa:** "depois que terminar todas as 20 primeiros". Falta Pedro dizer o que é "terminar": as crianças zerarem as 20 fases, ou fechar pendências das 20 fases existentes antes de conteúdo novo. `bloqueia` [[roadmap#onda-2]].
+- [2026-10-17] (d) **Esquema de pontuação da loja:** "precisamos pensar em um esquema de pontuação para recuperar itens da loja". Em aberto: de onde vêm os pontos (moedas, estrelas, conquistas, recordes), se acumulam entre fases, preço dos itens. Regra de economia → validar com Pedro. `bloqueia` [[roadmap#onda-2]].
+- [2026-10-17] (d) **Desafios +16:** "podemos ter desafios +16" — forma e escopo não definidos.
+- [2026-10-17 ~superseded 2026-10-17] (e) ~~**`.netlify/` no git:** pergunta sem resposta na página de decisões → AUD-06 segue aberto em [[achados#abertos]].~~ → (d) Pedro autorizou; desrastreado, AUD-06 corrigido em [[achados#abertos]].
 
 ## Default adotado enquanto não fecha {#default}
 
@@ -121,3 +141,5 @@ distribuição?
   Eixo 1 (produto) começa sem decisão do Pedro. `revisar: 2026-11-17`.
 - [2026-10-17] (d) **Escopo desta fase:** apenas documentação (organização + melhorias) —
   nenhuma melhoria de produto será implementada até a ordem ser definida.
+- [2026-10-17] (d) **Revisão respondida:** 12 de 13 decisões fechadas em [[decisoes#expansao]]; a checagem do SW foi
+  autorizada e implementada; o `.netlify/` foi desrastreado por autorização posterior. Seguem abertas as questões de [[organizacao-expansao#aberto]].

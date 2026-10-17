@@ -54,4 +54,6 @@ nada.
 
 ## Conteúdo
 
-*Nenhuma fonte bruta arquivada no momento. Novos materiais recebidos devem ser adicionados na raiz de `fontes/` e catalogados aqui.*
+| Arquivo | Recebido | De quem | O que é | Virou |
+|---|---|---|---|---|
+| `2026-10-17-pedro-decisoes-onda-2.md` | 2026-10-17 | Pedro Pompeu | Respostas coladas da página de decisões da revisão do brainstorm `organizacao-expansao` | `context/decisoes.md#expansao`, `context/roadmap.md`, `context/discussoes/organizacao-expansao.md#aberto` |

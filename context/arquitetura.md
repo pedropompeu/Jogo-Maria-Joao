@@ -41,7 +41,8 @@ relacionado:
 | Linter | `lint.py` | Valida sintaxe, links, âncoras e procedência | N/A |
 | Testes | `tests/smoke.mjs`, `tests/browser-env.mjs` | Roda o jogo headless no Node: init, Começar Aventura, 12 quadros; cenário de storage bloqueado | Stub pode ficar defasado se API nova de browser entrar — falha alto, e é esse o objetivo |
 | Validador de fases | `tools/validate-levels.mjs` | Checa as 20 fases: schema, tipos, spawn, portal, boss, coletáveis | Regras do motor mudam → atualizar o validador junto |
-| CI | `.github/workflows/ci.yml` | `lint.py` + validador + smoke (2 cenários) em push/PR | Só roda no GitHub; local = `npm test` |
+| Checagem do SW | `tools/check-sw-cache.mjs`, `tools/sw-cache.lock.json` | Falha se arquivo do `ASSETS` mudou sem bump do `CACHE`; `npm run sw:lock` regrava o lock após o bump | Lê `CACHE`/`ASSETS` de `sw.js` por regex — mudar o formato dessas linhas exige ajustar o script |
+| CI | `.github/workflows/ci.yml` | `lint.py` + validador + checagem do SW + smoke (2 cenários) em push/PR | Só roda no GitHub; local = `npm test` |
 | Jogo (loop) | `game.js:1961` (`function loop`) | `requestAnimationFrame`, delta clamp 50ms, update+render no mesmo tick | Sem timestep fixo; física varia sob jank |
 | Jogo (dados) | `levels-data.js` (20 fases; único `LEVELS`) | Fases, plataformas, inimigos, moedas, checkpoints, power-ups, portal, hazards | Mudança de fase deve passar no validador; nova fase = subir a contagem no validador e no `README` |
 | Jogo (atores) | `characters.js` (globais `ch_*`) + `game.js` (`resetP:110`, `initBoss:437`, `updatePlayer:734`) | Unicórnio, slime/bat/spike/bee, boss (2HP), fireballs | Inimigos não têm gravidade: `y=null` = voa no plano do chão (gY−38), inclusive sobre vãos — documentado no validador |
@@ -61,4 +62,5 @@ relacionado:
 
 ## Como verificar {#verificacao}
 
+- [2026-10-17] (e) ← `package.json` `npm test` passa a incluir `tools/check-sw-cache.mjs`; depois de todo bump do `CACHE`, rodar `npm run sw:lock`.
 - [2026-10-17] (i) ← `package.json` Verificação local: `python lint.py` (memória), `npm test` (smoke + validador, sem instalar nada) e `SMOKE_THROW_STORAGE=1 node tests/smoke.mjs` (regressão AUD-03). O CI roda tudo em push/PR.
