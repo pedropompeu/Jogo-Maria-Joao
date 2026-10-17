@@ -1,8 +1,8 @@
-// Botão de tela cheia no celular (index.html, style.css, game.js). Bump v12→v13.
+// Unicórnio novo com cabelo simulado + botões de toque 1/3 maiores. Bump v13→v14.
 // REGRA: todo release que toca arquivo cacheado exige bump — sem ele,
 // clientes com SW instalado ficam no stale eterno (AUD-02). Depois do bump:
 // `npm run sw:lock` (o CI falha se um arquivo do ASSETS mudar sem bump).
-const CACHE = 'unicorn-v13';
+const CACHE = 'unicorn-v14';
 const ASSETS = [
   './',
   './index.html',

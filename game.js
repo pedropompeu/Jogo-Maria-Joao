@@ -780,6 +780,9 @@ function updatePlayer(dt) {
   // fell off bottom → perde 1 vida e respawna no checkpoint ou início da fase
   if (p.y > CH+100) { fallDeath(); return; }
 
+  // estado do chão no quadro anterior: sem isso todo quadro parado contava como pouso
+  // (landSquash, poeira e som repetindo sem parar)
+  p.wasOnG = p.onG;
   p.onG = false;
 
   // platform collision
@@ -792,7 +795,7 @@ function updatePlayer(dt) {
 
     if (p.vy>=0 && prevBottom<=pl.y+4) {
       // land on top — poeira ao pousar
-      const wasAir = !p.onG;
+      const wasAir = !p.wasOnG;
       p.y  = pl.y - p.h;
       p.vy = 0; p.onG=true; p.djAvail=false;
       if (wasAir) {
@@ -1643,7 +1646,8 @@ function drawLeg(bx, by, swing, topCol, hoofCol) {
 
 // player unicorn — delega para characters.js
 function drawPlayer() {
-  ch_drawUnicorn(ctx, p, camX, keys, cosmetics, gs === 'win');
+  const L = LEVELS[lvlIdx];
+  ch_drawUnicorn(ctx, p, camX, keys, cosmetics, gs === 'win', (L && L.gravity) || G);
 }
 
 // particles
@@ -1930,14 +1934,16 @@ function drawMenuScene() {
 
   // Save and override player state to draw unicorn at menu position
   const _camX = camX;
-  const _px = p.x, _py = p.y, _pf = p.facing, _pg = p.onG, _pvy = p.vy;
+  const _px = p.x, _py = p.y, _pf = p.facing, _pg = p.onG, _pvy = p.vy, _pvx = p.vx;
   const _pls = p.landSquash || 0, _pinv = p.invT;
 
   camX = 0;
   p.x = menuUnicornX;
   p.y = CH - 172;
-  p.facing = 1;
-  p.onG = menuUnicornDir === 0;
+  // entra galopando para a esquerda e, ao parar, vira de frente para a direita
+  p.facing = menuUnicornDir === -1 ? -1 : 1;
+  p.vx = menuUnicornDir === -1 ? -3 : 0;
+  p.onG = true;
   p.vy = 0;
   p.landSquash = 0;
   p.invT = 0;
@@ -1946,11 +1952,12 @@ function drawMenuScene() {
 
   camX = _camX;
   p.x = _px; p.y = _py; p.facing = _pf; p.onG = _pg;
-  p.vy = _pvy; p.landSquash = _pls; p.invT = _pinv;
+  p.vy = _pvy; p.vx = _pvx; p.landSquash = _pls; p.invT = _pinv;
 
   // Horn sparkles when idle
   if (menuUnicornDir === 0 && Math.random() < 0.3) {
-    const hornX = menuUnicornX + 11 + 2, hornY = CH - 172 + 26 - 22 - 18 - 16;
+    // ponta do chifre do unicórnio novo: ~30px à frente e ~104px acima dos cascos
+    const hornX = menuUnicornX + 22 + 30, hornY = CH - 172 + 52 - 104;
     spawnParticles(hornX + (Math.random() - 0.5) * 12, hornY + Math.random() * 10,
       `hsl(${(t * 80) % 360}, 100%, 75%)`, 1);
   }

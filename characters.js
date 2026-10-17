@@ -22,403 +22,572 @@ function ch_drawLeg(ctx, bx, by, swing, topCol, hoofCol) {
   ctx.beginPath(); ctx.ellipse(ex, ey+3.5, 4.5, 1.5, 0, 0, Math.PI); ctx.fill();
 }
 
-// ── Eye by state (helper) ────────────────────────────────────────────────────
-function _ch_eye(ctx, ex, ey, state, t) {
-  const TAU = Math.PI * 2;
-
-  if (state === 'hurt') {
-    // × olhos machucados
-    ctx.strokeStyle = '#cc2244'; ctx.lineWidth = 2.8; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(ex-5, ey-5); ctx.lineTo(ex+5, ey+5); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(ex+5, ey-5); ctx.lineTo(ex-5, ey+5); ctx.stroke();
-    // lágrima
-    ctx.fillStyle = '#88ccff';
-    ctx.beginPath(); ctx.ellipse(ex+6, ey+7, 2, 3.5, 0.15, 0, TAU); ctx.fill();
-    return;
-  }
-
-  if (state === 'win') {
-    // ★ olho estrela
-    ctx.fillStyle = '#ffd700';
-    ctx.beginPath();
-    for (let i = 0; i < 5; i++) {
-      const a  = (i * TAU / 5) - Math.PI / 2;
-      const a2 = a + Math.PI / 5;
-      const px = ex + Math.cos(a)  * 8;
-      const py = ey + Math.sin(a)  * 8;
-      const qx = ex + Math.cos(a2) * 4;
-      const qy = ey + Math.sin(a2) * 4;
-      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-      ctx.lineTo(qx, qy);
-    }
-    ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = '#ffaa00'; ctx.lineWidth = 1; ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,200,0.8)';
-    ctx.beginPath(); ctx.arc(ex, ey, 2.5, 0, TAU); ctx.fill();
-    return;
-  }
-
-  // piscar suave a cada 4.2s (idle / run)
-  const bp = t % 4.2;
-  if ((state === 'idle' || state === 'run') && bp > 4.05) {
-    ctx.strokeStyle = '#8833aa'; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.arc(ex, ey, 7, Math.PI, TAU); ctx.stroke();
-    ctx.lineWidth = 1.6;
-    ctx.beginPath(); ctx.moveTo(ex-5, ey); ctx.lineTo(ex-7, ey-4); ctx.stroke();
-    return;
-  }
-
-  // olho kawaii normal — aumenta ao pular
-  const sc = state === 'jump' ? 1.25 : 1;
-
-  ctx.fillStyle = 'rgba(180,100,200,0.18)';
-  ctx.beginPath(); ctx.ellipse(ex+1, ey+1, 9*sc, 8*sc, 0, 0, TAU); ctx.fill();
-  ctx.fillStyle = 'white';
-  ctx.beginPath(); ctx.ellipse(ex, ey, 8.5*sc, 7.5*sc, 0, 0, TAU); ctx.fill();
-  ctx.strokeStyle = '#cc88bb'; ctx.lineWidth = 1.2; ctx.stroke();
-  const irG = ctx.createRadialGradient(ex-1.5, ey-1.5, 1, ex, ey, 6*sc);
-  irG.addColorStop(0, '#cc88ff'); irG.addColorStop(0.4, '#8844ee'); irG.addColorStop(1, '#330077');
-  ctx.fillStyle = irG;
-  ctx.beginPath(); ctx.arc(ex, ey, 6*sc, 0, TAU); ctx.fill();
-  ctx.fillStyle = '#110022';
-  ctx.beginPath(); ctx.arc(ex+0.5, ey+0.5, state === 'jump' ? 4.5 : 3.5, 0, TAU); ctx.fill();
-  ctx.fillStyle = 'white';
-  ctx.beginPath(); ctx.arc(ex+2.5, ey-2.5, 2.5, 0, TAU); ctx.fill();
-  ctx.beginPath(); ctx.arc(ex-1.5, ey+2, 1.2, 0, TAU); ctx.fill();
-  ctx.fillStyle = 'rgba(200,150,255,0.35)';
-  ctx.beginPath(); ctx.arc(ex, ey+3*sc, 4*sc, 0.1*Math.PI, 0.9*Math.PI); ctx.fill();
-
-  // cílios — menos ao correr
-  ctx.strokeStyle = '#8833aa'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
-  const lA = state === 'run' ? [-0.85,-0.42,-0.1] : [-1.1,-0.75,-0.42,-0.1, 0.18];
-  const lL = state === 'run' ? [9, 11, 9]         : [10, 11.5, 12.5, 11.5, 9.5];
-  for (let i = 0; i < lA.length; i++) {
-    const ba = lA[i] - Math.PI / 2;
-    const bx2 = ex + Math.cos(ba) * 7.5 * sc;
-    const by2 = ey + Math.sin(ba) * 7.5 * sc;
-    const tx2 = bx2 + Math.cos(ba-0.35) * lL[i];
-    const ty2 = by2 + Math.sin(ba-0.35) * lL[i] - 1.5;
-    const cpX = (bx2+tx2)/2 + Math.cos(ba-0.7)*3;
-    const cpY = (by2+ty2)/2 + Math.sin(ba-0.7)*3;
-    ctx.beginPath(); ctx.moveTo(bx2, by2);
-    ctx.quadraticCurveTo(cpX, cpY, tx2, ty2); ctx.stroke();
-  }
-}
-
-// ── Mouth by state (helper) ───────────────────────────────────────────────────
-function _ch_mouth(ctx, hx, hy, state) {
-  ctx.lineCap = 'round';
-  if (state === 'hurt') {
-    ctx.strokeStyle = '#cc3366'; ctx.lineWidth = 1.8;
-    ctx.beginPath();
-    ctx.moveTo(hx+9, hy+4);
-    ctx.quadraticCurveTo(hx+14, hy+1.5, hx+19, hy+4); // boca triste
-    ctx.stroke();
-    return;
-  }
-  if (state === 'win') {
-    ctx.strokeStyle = '#dd2266'; ctx.lineWidth = 2.2;
-    ctx.beginPath(); ctx.arc(hx+14, hy-2, 7, 0.05, Math.PI*0.95); ctx.stroke();
-    ctx.fillStyle = 'white'; // dentinhos
-    ctx.beginPath(); ctx.arc(hx+14, hy+2.5, 4.5, 0, Math.PI); ctx.fill();
-    return;
-  }
-  if (state === 'jump') {
-    ctx.fillStyle = '#cc3377'; // boca aberta "ooh!"
-    ctx.beginPath(); ctx.ellipse(hx+14, hy, 4.5, 5.5, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ffaabb';
-    ctx.beginPath(); ctx.ellipse(hx+14, hy+1.5, 3, 3.5, 0, 0, Math.PI*2); ctx.fill();
-    return;
-  }
-  if (state === 'run') {
-    ctx.strokeStyle = '#dd4477'; ctx.lineWidth = 1.8;
-    ctx.beginPath(); ctx.arc(hx+14, hy-1, 5, 0.15, Math.PI*0.7); ctx.stroke();
-    ctx.fillStyle = '#ff6699'; // linguinha
-    ctx.beginPath(); ctx.ellipse(hx+17.5, hy+3, 2.5, 3, 0.2, 0, Math.PI*2); ctx.fill();
-    return;
-  }
-  // idle — sorriso suave
-  ctx.strokeStyle = '#dd4477'; ctx.lineWidth = 1.8;
-  ctx.beginPath(); ctx.arc(hx+14, hy-1, 5, 0.15, Math.PI*0.8); ctx.stroke();
-}
-
 // ── Unicorn (player) ─────────────────────────────────────────────────────────
-function ch_drawUnicorn(ctx, p, camX, keys, cosmetics, isWin) {
-  const t   = performance.now() / 1000;
-  const TAU = Math.PI * 2;
+// Boneco articulado só com código (esboço v16 aprovado por Pedro em 2026-10-17):
+// cabeça grande de bebê, olhos 3/4 com brilho, contorno leve, chifre dourado em
+// espiral e crina/rabo/franja de fios arco-íris com física de verdade — cada fio é
+// uma corrente de pontos de comprimento fixo, presa na raiz, com inércia, ar e vento.
+// Coordenadas locais: centro do corpo em (0,0), chão em y=+26 (= pé da hitbox).
+const _chU = (() => {
+const TAU = Math.PI * 2;
+const OUT = '#a35680';   // contorno: ameixa clara, não mais quase preto
+const OW = 1.1;          // espessura do contorno (antes 2)
+const PAL = {
+  body: '#ffc4e1', shade: '#f6a9d0', muzzle: '#ffe8f2', hoof: '#ff7eb3', earIn: '#ff9cc8',
+  blush: 'rgba(255,110,165,0.5)', eye: '#3a1d4d', eyeLow: '#7a4fa8',
+  mane: ['#ff8fa3', '#ffb26b', '#ffe07a', '#7ed9c6', '#86b4ff', '#b98cf0'],
+  rainbow: ['#ff8a9a', '#ffb26b', '#ffe27a', '#9be07f', '#7fb6ff', '#b98cf0'],  // vermelho → violeta, em tom pastel
+  gold: '#ffd44f', goldDark: '#d7951b',
+};
+const GROUND = 26;
+const BX = 0;   // centro do corpo (antes -3): corpo e patas mais para frente, sob a cabeça
 
-  ctx.save(); ctx.translate(-camX, 0);
+const inOutSine = t => -(Math.cos(Math.PI * t) - 1) / 2;
+const lerp = (a, b, t) => a + (b - a) * t;
 
-  if (p.invT > 0 && Math.floor(p.invT / 6) % 2 === 0) { ctx.restore(); return; }
+// cor do arco-íris para a posição s (0..1); fios vizinhos alternam um tom mais claro
+// k > 0 clareia (rumo ao branco); k < 0 escurece (rumo à cor do contorno)
+function tint(c, k) {
+  const n = parseInt(c.slice(1), 16), o = k > 0 ? [255, 255, 255] : [163, 86, 128], a = Math.abs(k);
+  const m = (v, w) => Math.round(v + (w - v) * a);
+  return `rgb(${m(n >> 16, o[0])},${m((n >> 8) & 255, o[1])},${m(n & 255, o[2])})`;
+}
+function rainbowAt(s, i, k = 0) {
+  const c = PAL.rainbow[Math.min(5, Math.floor(s * 6))];
+  return tint(c, k + (i % 2 ? 0.3 : 0));
+}
+// estrelinha de brilho de 4 pontas, piscando
+function sparkle(ctx, x, y, r) {
+  if (r < 0.15) return;
+  ctx.beginPath(); ctx.moveTo(x, y - r);
+  ctx.quadraticCurveTo(x, y, x + r, y); ctx.quadraticCurveTo(x, y, x, y + r);
+  ctx.quadraticCurveTo(x, y, x - r, y); ctx.quadraticCurveTo(x, y, x, y - r);
+  ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = 'rgba(215,149,27,0.7)'; ctx.lineWidth = 0.35; ctx.stroke();
+}
 
-  const state = isWin
-    ? 'win'
-    : p.invT > 0           ? 'hurt'
-    : !p.onG               ? 'jump'
-    : (keys.left||keys.right) ? 'run'
-    : 'idle';
+// Fio de cabelo: largo na raiz, um pouco mais cheio no meio e afinando até a ponta,
+// ao longo dos pontos simulados (h.pts). u0..u1 = trecho do fio (0 = raiz, 1 = ponta).
+function hairPts(h, u0 = 0, u1 = 1, N = 14) {
+  const P = h.pts, M = P.length - 1, pts = [];
+  for (let k = 0; k <= N; k++) {
+    const u = u0 + (u1 - u0) * k / N, f = u * M, i = Math.min(M - 1, Math.floor(f)), r = f - i;
+    pts.push({ x: lerp(P[i].x, P[i + 1].x, r), y: lerp(P[i].y, P[i + 1].y, r),
+      hw: h.w * 0.5 * Math.pow(1 - u, 0.6) * (0.9 + 0.3 * Math.sin(u * Math.PI)) });
+  }
+  pts.forEach((q, k) => {
+    const a = pts[Math.max(0, k - 1)], b = pts[Math.min(N, k + 1)];
+    const d = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+    q.nx = -(b.y - a.y) / d; q.ny = (b.x - a.x) / d;
+  });
+  return pts;
+}
+function hairPath(ctx, h) {
+  const pts = hairPts(h, 0, 1, 26);
+  ctx.beginPath();
+  pts.forEach((q, k) => k ? ctx.lineTo(q.x + q.nx * q.hw, q.y + q.ny * q.hw) : ctx.moveTo(q.x + q.nx * q.hw, q.y + q.ny * q.hw));
+  for (let k = pts.length - 1; k >= 0; k--) ctx.lineTo(pts[k].x - pts[k].nx * pts[k].hw, pts[k].y - pts[k].ny * pts[k].hw);
+  ctx.closePath();
+}
+// Mecha inteira: contorno de todos os fios primeiro (silhueta limpa), depois cada fio com sua cor,
+// uma linha fininha separando os fios e um brilho no meio.
+function hair(ctx, list, sc = 1) {
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  for (const h of list) { hairPath(ctx, h); ctx.strokeStyle = OUT; ctx.lineWidth = OW * 2 * sc; ctx.stroke(); }
+  for (const h of list) {
+    hairPath(ctx, h); ctx.fillStyle = h.c; ctx.fill();
+    ctx.strokeStyle = 'rgba(163,86,128,0.28)'; ctx.lineWidth = 0.5 * sc; ctx.stroke();
+    if (h.back) continue;   // camada de trás: só cor, sem brilho (dá profundidade)
+    const line = (u0, u1, a, wk) => {
+      const q = hairPts(h, u0, u1, 6);
+      ctx.beginPath(); q.forEach((pt, k) => k ? ctx.lineTo(pt.x, pt.y) : ctx.moveTo(pt.x, pt.y));
+      ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = Math.max(0.5 * sc, h.w * wk); ctx.stroke();
+    };
+    line(0.1, 0.72, 0.5, 0.14);    // fio de luz ao longo do cabelo
+    line(0.22, 0.36, 0.8, 0.4);    // faixa de brilho (todos os fios na mesma altura formam um "anel" de luz)
+  }
+}
+// ---- Simulação do cabelo ----
+// Cada fio vira SIM_N+1 pontos. O formato desenhado (a Bézier) é o "penteado": cada pedaço do fio
+// tenta apontar para onde apontaria no penteado (firme perto da raiz, solto na ponta), mas tem peso,
+// então chega atrasado quando a cabeça se mexe, passa do ponto e balança. O comprimento nunca muda.
+const SIM_N = 10;
+function createHairSim() { return { t: null, strands: {} }; }
+const rand01 = n => { const x = Math.sin(n * 12.9898) * 43758.5453; return x - Math.floor(x); };
+function restPts(h, M) {
+  const [x0, y0, c1x, c1y, c2x, c2y, x1, y1] = h.p, out = [];
+  for (let k = 0; k <= SIM_N; k++) {
+    const u = k / SIM_N, v = 1 - u;
+    const x = v * v * v * x0 + 3 * v * v * u * c1x + 3 * v * u * u * c2x + u * u * u * x1;
+    const y = v * v * v * y0 + 3 * v * v * u * c1y + 3 * v * u * u * c2y + u * u * u * y1;
+    out.push({ x: M.a * x + M.c * y + M.e, y: M.b * x + M.d * y + M.f });
+  }
+  return out;
+}
+function stepStrand(s, R, P, rnd, E, tt, seed) {
+  const h = E.h, N = R.length - 1, damp = Math.exp(-P.c * h), W = E.wind;
+  const old = s.p, np = [{ x: R[0].x, y: R[0].y }];
+  const v0 = { x: (R[0].x - old[0].x) / h, y: (R[0].y - old[0].y) / h };
+  const F = old.map(() => ({ x: 0, y: 0 }));
+  for (let k = 1; k <= N; k++) {
+    const u = k / N, v = s.v[k], pv = k > 1 ? s.v[k - 1] : v0;
+    // mola entre vizinhos: o pedaço quer ter a direção do penteado; puxa o filho e é puxado de volta (ação e reação)
+    const K = P.k0 * (1 - u) * (1 - u) + P.k1 * rnd, Cr = Math.min(2 * P.z * Math.sqrt(K), 0.25 / h);   // limite: mais que isso o passo treme
+    const ex = old[k].x - old[k - 1].x - (R[k].x - R[k - 1].x), ey = old[k].y - old[k - 1].y - (R[k].y - R[k - 1].y);
+    const fx = -K * ex - Cr * (v.x - pv.x), fy = -K * ey - Cr * (v.y - pv.y);
+    F[k].x += fx; F[k].y += fy; F[k - 1].x -= fx; F[k - 1].y -= fy;
+    // ar: vento do andar + rajadinhas que mudam ao longo do fio (cada fio no seu ritmo)
+    const gust = W.gust * u, cd = P.cd * (0.3 + 0.7 * u);
+    F[k].x += cd * (W.x + gust * Math.sin(tt * 6.3 + seed * 1.9 - k * 0.8) - v.x);
+    F[k].y += cd * 0.4 * (gust * 1.7 * Math.sin(tt * 8.7 + seed * 2.3 - k * 0.9) - v.y) + E.fall;   // no ar, cai junto com o corpo
+  }
+  for (let k = 1; k <= N; k++) {
+    const v = s.v[k];
+    v.x = (v.x + F[k].x * h) * damp; v.y = (v.y + F[k].y * h) * damp;
+    np.push({ x: old[k].x + v.x * h, y: old[k].y + v.y * h });
+  }
+  // comprimento fixo: cada pedaço volta ao seu tamanho corrigindo as duas pontas (a raiz não se mexe);
+  // a velocidade sai do deslocamento real, então a correção só tira energia, nunca põe.
+  const Ls = [0];
+  for (let k = 1; k <= N; k++) Ls.push(Math.hypot(R[k].x - R[k - 1].x, R[k].y - R[k - 1].y));
+  for (let it = 0; it < 6; it++) {
+    for (let k = 1; k <= N; k++) {
+      const a = np[k - 1], b = np[k], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1e-6;
+      const c = (d - Ls[k]) / d, wa = k > 1 ? 0.5 : 0, wb = 1 - wa;
+      a.x += dx * c * wa; a.y += dy * c * wa; b.x -= dx * c * wb; b.y -= dy * c * wb;
+    }
+  }
+  // dobra máxima: perto da raiz o fio quase não sai do penteado; a ponta pode virar bem mais.
+  // Assim a crina não passa por cima da cabeça nem o rabo por cima da garupa.
+  for (let k = 1; k <= N; k++) {
+    const rx = R[k].x - R[k - 1].x, ry = R[k].y - R[k - 1].y;
+    const dx = np[k].x - np[k - 1].x, dy = np[k].y - np[k - 1].y;
+    const ang = Math.atan2(rx * dy - ry * dx, rx * dx + ry * dy), lim = P.b0 + P.b1 * (k / N);
+    if (Math.abs(ang) > lim) {
+      const a = Math.sign(ang) * lim, L = Ls[k] / (Math.hypot(rx, ry) || 1), cs = Math.cos(a), sn = Math.sin(a);
+      const nx = np[k - 1].x + (rx * cs - ry * sn) * L, ny = np[k - 1].y + (rx * sn + ry * cs) * L;
+      const ox = nx - np[k].x, oy = ny - np[k].y;
+      for (let j = k; j <= N; j++) { np[j].x += ox; np[j].y += oy; }
+    }
+  }
+  for (let k = 1; k <= N; k++) { s.v[k].x = (np[k].x - old[k].x) / h; s.v[k].y = (np[k].y - old[k].y) / h; }
+  s.p = np;
+}
+function smoothPts(P, sub) {
+  const out = [], N = P.length - 1, g = i => P[Math.max(0, Math.min(N, i))];
+  const cr = (a, b, c, d, t) => 0.5 * (2 * b + (c - a) * t + (2 * a - 5 * b + 4 * c - d) * t * t + (3 * b - a - 3 * c + d) * t * t * t);
+  for (let k = 0; k < N; k++) {
+    const p0 = g(k - 1), p1 = g(k), p2 = g(k + 1), p3 = g(k + 2);
+    for (let j = 0; j < sub; j++) out.push({ x: cr(p0.x, p1.x, p2.x, p3.x, j / sub), y: cr(p0.y, p1.y, p2.y, p3.y, j / sub) });
+  }
+  out.push({ x: P[N].x, y: P[N].y });
+  return out;
+}
+// Simula e desenha um grupo de fios. O espaço da simulação é o do começo do desenho (chão parado),
+// então pulo, galope e balanço da cabeça chegam ao cabelo como movimento de verdade.
+function simHair(ctx, E, list, P) {
+  const M = E.M0i.multiply(ctx.getTransform());
+  const sc = Math.sqrt(Math.abs(M.a * M.d - M.b * M.c));
+  for (const h of list) {
+    const rest = restPts(h, M);
+    let s = E.sim.strands[h.id];
+    if (!s || E.reset) s = E.sim.strands[h.id] = { p: rest.map(o => ({ ...o })), v: rest.map(() => ({ x: 0, y: 0 })), r: rest };
+    const rnd = 0.75 + 0.5 * rand01(h.seed);
+    for (let j = 1; j <= E.n; j++) {
+      const f = j / E.n;
+      const R = s.r.map((o, k) => ({ x: lerp(o.x, rest[k].x, f), y: lerp(o.y, rest[k].y, f) }));
+      stepStrand(s, R, P, rnd, E, E.t - E.dt * (1 - f), h.seed);
+    }
+    s.r = rest;
+    h.pts = smoothPts(s.p, 3); h.w *= sc;
+  }
+  ctx.save(); ctx.setTransform(E.M0); hair(ctx, list, sc); ctx.restore();
+  return sc;
+}
+function sparkleOn(ctx, E, list, id, u, r, sc) {
+  const h = list.find(o => o.id === id); if (!h) return;
+  const q = h.pts[Math.round(u * (h.pts.length - 1))];
+  ctx.save(); ctx.setTransform(E.M0); sparkle(ctx, q.x, q.y, r * sc); ctx.restore();
+}
+// rigidez perto da raiz (k0) e na ponta (k1), amortecimento entre vizinhos (z), amortecimento geral (c),
+// resistência do ar (cd) e dobra máxima de cada pedaço em radianos: b0 na raiz, b0 + b1 na ponta
+const PHYS = { mane: { k0: 1100, k1: 100, z: 0.7, c: 1.2, cd: 3.4, b0: 0.35, b1: 1.1 }, tail: { k0: 900, k1: 80, z: 0.6, c: 1.1, cd: 3.6, b0: 0.4, b1: 1.2 }, fringe: { k0: 2600, k1: 420, z: 0.8, c: 2, cd: 1.5, b0: 0.3, b1: 0.6 } };
+
+const qd = (a, b, c, s) => a * (1 - s) * (1 - s) + 2 * b * (1 - s) * s + c * s * s;
+
+function blob(ctx, fill, draw) {
+  ctx.beginPath(); draw(); ctx.fillStyle = fill; ctx.fill();
+  ctx.strokeStyle = OUT; ctx.lineWidth = OW; ctx.lineJoin = 'round'; ctx.stroke();
+}
+
+// Perna: coxa larga em cima afinando até o joelho, canela reta e casco.
+// Ângulo 0 = reta para baixo; positivo = casco para trás. a1 = coxa, a2 = canela (absoluto).
+const LEG_W = 7;
+function legGeom(hx, hy, a1, a2, L1, L2, topW, legW = LEG_W) {
+  const kx = hx - Math.sin(a1) * L1, ky = hy + Math.cos(a1) * L1;
+  const fx = kx - Math.sin(a2) * L2, fy = ky + Math.cos(a2) * L2;
+  return { hx, hy, kx, ky, fx, fy, a1, topW, legW };
+}
+
+// Desenha a perna em duas passadas: 'out' (contorno, por baixo de tudo) e 'fill' (cor por cima).
+// Fazendo o contorno de corpo + patas antes de qualquer cor, as linhas internas somem e vira uma peça só.
+function legShape(ctx, g, pass, color) {
+  const px = Math.cos(g.a1), py = Math.sin(g.a1);
+  const tw = g.topW / 2, kw = g.legW / 2;
+  const thigh = () => {
+    ctx.beginPath();
+    ctx.moveTo(g.hx + px * tw, g.hy + py * tw); ctx.lineTo(g.kx + px * kw, g.ky + py * kw);
+    ctx.lineTo(g.kx - px * kw, g.ky - py * kw); ctx.lineTo(g.hx - px * tw, g.hy - py * tw); ctx.closePath();
+    ctx.moveTo(g.hx + tw, g.hy); ctx.arc(g.hx, g.hy, tw, 0, TAU);
+    ctx.moveTo(g.kx + kw, g.ky); ctx.arc(g.kx, g.ky, kw, 0, TAU);
+  };
+  const shin = () => { ctx.beginPath(); ctx.moveTo(g.kx, g.ky); ctx.lineTo(g.fx, g.fy); };
+  ctx.lineCap = 'butt'; ctx.lineJoin = 'round';
+  if (pass === 'out') {
+    thigh(); ctx.strokeStyle = OUT; ctx.lineWidth = OW * 2; ctx.stroke();
+    shin(); ctx.lineWidth = g.legW + OW * 2; ctx.stroke();
+  } else {
+    thigh(); ctx.fillStyle = color; ctx.fill();
+    shin(); ctx.strokeStyle = color; ctx.lineWidth = g.legW; ctx.stroke();
+  }
+}
+
+// casco: trapézio com sola reta, pinça (frente) inclinada e talão (trás) quase reto
+function hoof(ctx, g, ang) {
+  ctx.save(); ctx.translate(g.fx, g.fy); ctx.rotate(ang);
+  const h = g.legW / 2;
+  blob(ctx, PAL.hoof, () => {
+    ctx.moveTo(-h - 0.1, -0.6); ctx.lineTo(h + 0.1, -0.6);
+    ctx.lineTo(h + 1.6, 4.4); ctx.lineTo(-h - 0.4, 4.4); ctx.closePath();
+  });
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 0.8; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(h - 0.6, 0.4); ctx.lineTo(h + 0.5, 3.4); ctx.stroke();
+  ctx.restore();
+}
+
+function eye(ctx, x, y, rx, ry, open, lashes) {
+  if (open < 0.25) {
+    ctx.beginPath(); ctx.arc(x, y - ry * 0.2, rx * 0.95, 0.15 * Math.PI, 0.85 * Math.PI);
+    ctx.strokeStyle = PAL.eye; ctx.lineWidth = 1.2; ctx.lineCap = 'round'; ctx.stroke();
+    return;
+  }
+  ctx.save(); ctx.translate(x, y); ctx.scale(1, open);
+  ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, TAU); ctx.fillStyle = PAL.eye; ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0, ry * 0.42, rx * 0.72, ry * 0.4, 0, 0, TAU); ctx.fillStyle = PAL.eyeLow; ctx.fill();
+  ctx.beginPath(); ctx.arc(rx * 0.3, -ry * 0.38, rx * 0.42, 0, TAU); ctx.fillStyle = '#fff'; ctx.fill();
+  ctx.beginPath(); ctx.arc(-rx * 0.35, ry * 0.3, rx * 0.2, 0, TAU); ctx.fill();
+  ctx.restore();
+  if (lashes) {
+    ctx.strokeStyle = PAL.eye; ctx.lineWidth = 0.9; ctx.lineCap = 'round';
+    for (let i = 0; i < 3; i++) {
+      const a = -0.95 + i * 0.32;
+      ctx.beginPath();
+      ctx.moveTo(x + Math.cos(a) * rx, y + Math.sin(a) * ry * open);
+      ctx.lineTo(x + Math.cos(a) * (rx + 2.4), y + Math.sin(a) * ry * open - 1.5);
+      ctx.stroke();
+    }
+  }
+}
+
+// pose.legs: 4 x {hip, bend} na ordem [trás-longe, trás-perto, frente-longe, frente-perto]
+function draw(ctx, pose, t, opts = {}) {
+  const knees = !!opts.knees;
+  const { bob = 0, tilt = 0, sx = 1, sy = 1, lift = 0, open = 1, sway = 1, pitch = 0 } = pose;
+  const legs = pose.legs || [{}, {}, {}, {}];
+  // relógio da simulação: avança pelo tempo que passou desde o último quadro (no máximo 0,05 s)
+  const sim = opts.sim || createHairSim();
+  let dt = sim.t == null ? -1 : t - sim.t;
+  const reset = !(dt >= 0 && dt < 0.5);
+  dt = reset ? 0 : Math.min(dt, 0.05);
+  const n = Math.ceil(dt * 120); sim.t = t;
+  const E = { sim, reset, n, dt, h: n ? dt / n : 0, t, wind: pose.wind || { x: 0, gust: 6 }, fall: pose.fall || 0, M0: opts.frame || ctx.getTransform() };
+  E.M0i = E.M0.inverse();
+  ctx.save();
+  const sh = Math.max(0.35, 1 - lift / 60);
+  ctx.fillStyle = 'rgba(60,0,60,0.14)';
+  ctx.beginPath(); ctx.ellipse(-3, GROUND + 1, 27 * sh, 4 * sh, 0, 0, TAU); ctx.fill();
+
+  ctx.translate(0, -lift);
+  ctx.translate(0, GROUND); ctx.scale(sx * 1.22, sy * 1.22); ctx.translate(0, -GROUND);
+  ctx.translate(0, -4); // pernas mais compridas: o corpo sobe um pouco
+  ctx.translate(-3, 6); ctx.rotate(pitch); ctx.translate(3, -6);
+
+  // rabo: sai do alto da garupa
+  ctx.save(); ctx.translate(-8, -5);
+  const tailStrands = (N, back) => {
+    const out = [];
+    for (let i = 0; i < N; i++) {
+      const s = i / (N - 1), w = 0;
+      const rx = -14, ry = s * 5, o = back ? 1 + 3 * Math.sin(s * Math.PI * 0.85) : 0;                      // raiz no alto da garupa
+      const tx = qd(-34 - o, -44 - o, -27 - o * 0.5, s) + w * 0.4, ty = qd(-2, 12, 25 + o * 0.5, s) + w * 0.5;
+      out.push({ p: [rx, ry, rx - 10, ry - 8 + s * 4, tx + 7, ty - 10 + w * 0.3, tx, ty],
+        w: (back ? 9 : 7.6) - s * 1.4, c: rainbowAt(s, i, back ? -0.16 : 0), back,
+        id: 't' + (back ? 'b' : 'f') + i, seed: 100 + i * 3.1 + (back ? 0.7 : 0) });
+    }
+    return out.reverse();
+  };
+  simHair(ctx, E, tailStrands(6, true), PHYS.tail);
+  const tailF = tailStrands(12, false), tsc = simHair(ctx, E, tailF, PHYS.tail);
+  sparkleOn(ctx, E, tailF, 'tf2', 0.8, 3.2 * Math.max(0, Math.sin(t * 2.6 + 1.3)), tsc);
+  sparkleOn(ctx, E, tailF, 'tf7', 0.75, 2.6 * Math.max(0, Math.sin(t * 2.6 + 3.9)), tsc);
+  ctx.restore();
+
+  // patas: [trás-longe, trás-perto, frente-longe, frente-perto]; as de trás saem da garupa, mais largas
+  // [hx, hy, largura da coxa, largura da canela]: as de trás mais gordinhas, combinando com a bundinha
+  const HIPS = [[-21, 7, 18.5, 10], [-16, 7, 18.5, 10], [10, 9, 9, 7], [15, 9, 9, 7]];
+  const geo = [], hoofA = [];
+  for (let i = 0; i < 4; i++) {
+    const [hx, hy, topW, legW] = HIPS[i];
+    const { hip = 0, bend = 0 } = legs[i];
+    let a1, a2;
+    if (knees) { a1 = hip - 0.06; a2 = hip + 0.06 + bend; }   // os quatro joelhos dobram para o mesmo lado
+    else { a1 = a2 = hip + bend * 0.25; }
+    const L1 = 9.2 + (9 - hy);                                // quadril mais alto -> coxa mais longa, casco no mesmo chão
+    geo.push(legGeom(hx, hy + bob, a1, a2, L1, 7.4, topW, legW));
+    // apoiado: casco de sola no chão; no ar: acompanha a canela (e vira para trás)
+    hoofA.push(lerp(-pitch, a2 + bend * 0.5, Math.min(1, bend / 0.5)));
+  }
+
+  // patas do outro lado: atrás de tudo, um tom mais escuro
+  for (const i of [0, 2]) { legShape(ctx, geo[i], 'out'); legShape(ctx, geo[i], 'fill', PAL.shade); hoof(ctx, geo[i], hoofA[i]); }
+
+  // corpo + garupa + patas deste lado: contorno de tudo primeiro, depois a cor por cima (peça única)
+  const body = () => { ctx.beginPath(); ctx.ellipse(BX - 2.5, 5 + bob, 23.5, 10.5, 0, 0, TAU); };
+  const rump = () => { ctx.beginPath(); ctx.ellipse(-19, 2 + bob, 9.5, 9.5, 0, 0, TAU); };
+  const chest = () => { ctx.beginPath(); ctx.ellipse(14, 5 + bob, 7.5, 8.5, 0, 0, TAU); };
+  // pescoço: nasce no peito, sobe inclinado para frente (crista curva atrás, garganta na frente)
+  const hb = bob * 1.3;
+  const neck = () => {
+    ctx.beginPath(); ctx.moveTo(2, 1 + bob);
+    ctx.quadraticCurveTo(4, -13 + hb, 13, -21 + hb);
+    ctx.lineTo(24, -15 + hb);
+    ctx.quadraticCurveTo(20, -4 + bob, 21, 7 + bob); ctx.closePath();
+  };
+  ctx.strokeStyle = OUT; ctx.lineWidth = OW * 2;
+  for (const sh of [body, rump, chest, neck]) { sh(); ctx.stroke(); }
+  legShape(ctx, geo[1], 'out'); legShape(ctx, geo[3], 'out');
+  ctx.fillStyle = PAL.body;
+  for (const sh of [body, rump, chest, neck]) { sh(); ctx.fill(); }
+  legShape(ctx, geo[1], 'fill', PAL.body); legShape(ctx, geo[3], 'fill', PAL.body);
+
+  // sombra da barriga
+  ctx.save(); body(); ctx.clip();
+  ctx.beginPath(); ctx.ellipse(BX - 2.5, 14 + bob, 24.5, 6, 0, 0, TAU); ctx.fillStyle = PAL.shade; ctx.fill();
+  ctx.restore();
+  // garupa: brilho redondo em cima e a dobrinha da bundinha embaixo
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.arc(-19, 2 + bob, 6.4, 1.1 * Math.PI, 1.45 * Math.PI); ctx.stroke();
+  ctx.strokeStyle = OUT; ctx.globalAlpha = 0.55; ctx.lineWidth = 0.9;
+  ctx.beginPath(); ctx.arc(-19, 2 + bob, 9.5, 0.2 * Math.PI, 0.5 * Math.PI); ctx.stroke();
+  ctx.globalAlpha = 1;
+  // coraçãozinho na garupa
+  ctx.save(); ctx.translate(-7, -1);
+  ctx.fillStyle = '#ff8fbd';
+  ctx.beginPath(); ctx.arc(-13, 5 + bob, 1.6, 0, TAU); ctx.arc(-10.6, 5 + bob, 1.6, 0, TAU); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-15.3, 5.6 + bob); ctx.lineTo(-11.8, 9 + bob); ctx.lineTo(-8.3, 5.6 + bob); ctx.fill();
+  ctx.restore();
+  hoof(ctx, geo[1], hoofA[1]); hoof(ctx, geo[3], hoofA[3]);
+  const cos = opts.cosmetics || {};
+  if (cos.wings) wings(ctx, t, bob);
 
   ctx.save();
-  ctx.translate(p.x + p.w/2, p.y + p.h/2);
+  ctx.translate(18, -23 + bob * 1.3); ctx.rotate(tilt); ctx.scale(0.88, 0.88);
 
-  // squash & stretch
-  let _sx = p.facing, _sy = 1.05;
-  if (p.landSquash > 0) {
-    _sx = p.facing * (1 + 0.22 * p.landSquash);
-    _sy = 0.85 + 0.2 * (1 - p.landSquash);
-  } else if (!p.onG) {
-    const spd = Math.min(Math.abs(p.vy) / 12, 1);
-    _sx = p.facing * (1 - 0.12 * spd);
-    _sy = 1.05 + 0.16 * spd;
-  }
-  ctx.scale(_sx, _sy);
-
-  const cx = 0, cy = 0;
-  const bob    = p.onG ? Math.sin(t * 2.8) * 1.8 : 0;
-  const lp     = t * 13;
-  const moving = keys.left || keys.right;
-
-  // ── Aura ──────────────────────────────────────────────────────────────────
-  {
-    const ar = isWin ? 62 : 44;
-    const aura = ctx.createRadialGradient(cx, cy-8, 6, cx, cy-8, ar);
-    if (state === 'win') {
-      aura.addColorStop(0,   `hsla(${(t*80)%360},100%,80%,0.45)`);
-      aura.addColorStop(0.5, `hsla(${(t*80+120)%360},100%,70%,0.22)`);
-      aura.addColorStop(1,   'rgba(255,200,255,0)');
-    } else if (state === 'hurt') {
-      aura.addColorStop(0, 'rgba(255,60,60,0.35)');
-      aura.addColorStop(1, 'rgba(255,60,60,0)');
-    } else {
-      aura.addColorStop(0, 'rgba(255,160,255,0.28)');
-      aura.addColorStop(1, 'rgba(200,80,255,0)');
+  // crina: fios saindo do alto da cabeça e descendo pela crista do pescoço, vermelho em cima até violeta embaixo
+  const maneStrands = (N, back) => {
+    const out = [];
+    for (let i = 0; i < N; i++) {
+      const s = i / (N - 1), w = 0;
+      const o = back ? 1 + 4 * Math.sin(s * Math.PI * 0.85) : 0;
+      const rx = qd(5, -15, -6, s), ry = qd(-15, -15, 13, s);         // raízes (escondidas sob a cabeça)
+      const tx = qd(-28 - o, -41 - o, -24 - o * 0.6, s) + w * (0.6 + s), ty = qd(-3, 15, 38 + o * 0.4, s);
+      out.push({ p: [rx, ry, rx - 13, ry - 6, tx + 7, ty - 11 + w * 0.3, tx, ty],
+        w: (back ? 11.5 : 9.6) - s * 2.4, c: rainbowAt(s, i, back ? -0.16 : 0), back,
+        id: 'm' + (back ? 'b' : 'f') + i, seed: i * 2.7 + (back ? 0.5 : 0) });
     }
-    ctx.fillStyle = aura;
-    ctx.beginPath(); ctx.ellipse(cx, cy-8, ar, ar+4, 0, 0, TAU); ctx.fill();
+    return out.reverse();   // os de cima por último: o vermelho fica por cima, na borda
+  };
+  simHair(ctx, E, maneStrands(7, true), PHYS.mane);     // camada de trás, mais escura: dá volume
+  const maneF = maneStrands(14, false), msc = simHair(ctx, E, maneF, PHYS.mane);
+  sparkleOn(ctx, E, maneF, 'mf2', 0.7, 3.4 * Math.max(0, Math.sin(t * 2.2)), msc);
+  sparkleOn(ctx, E, maneF, 'mf6', 0.75, 3 * Math.max(0, Math.sin(t * 2.2 + 2.2)), msc);
+  sparkleOn(ctx, E, maneF, 'mf10', 0.7, 2.6 * Math.max(0, Math.sin(t * 2.2 + 4.3)), msc);
+
+  blob(ctx, PAL.body, () => ctx.ellipse(0, 0, 17, 16, 0, 0, TAU));
+
+  blob(ctx, PAL.body, () => { ctx.moveTo(-11, -9); ctx.quadraticCurveTo(-12, -24, -5, -27); ctx.quadraticCurveTo(-1, -20, -1, -14); });
+  ctx.beginPath(); ctx.moveTo(-9, -12); ctx.quadraticCurveTo(-9.5, -21, -5.5, -23.5); ctx.quadraticCurveTo(-3, -18, -3.5, -14);
+  ctx.fillStyle = PAL.earIn; ctx.fill();
+
+  blob(ctx, PAL.muzzle, () => ctx.ellipse(10, 9, 8, 6, -0.1, 0, TAU));
+  ctx.fillStyle = '#e07aa5';
+  ctx.beginPath(); ctx.ellipse(8, 7.8, 1.1, 1.5, 0.3, 0, TAU); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(13.5, 7.3, 1.1, 1.5, -0.3, 0, TAU); ctx.fill();
+  ctx.beginPath(); ctx.arc(10.8, 10.5, 2.8, 0.2 * Math.PI, 0.8 * Math.PI);
+  ctx.strokeStyle = OUT; ctx.lineWidth = 1.1; ctx.lineCap = 'round'; ctx.stroke();
+
+  ctx.fillStyle = PAL.blush;
+  ctx.beginPath(); ctx.ellipse(-7, 5, 3.8, 2.4, 0, 0, TAU); ctx.fill();
+
+  eye(ctx, -3, -3.5, 4.3, 5.8, open, true);
+  eye(ctx, 8.5, -4, 4.9, 6.4, open, true);
+
+  // franja: fios saindo de baixo do chifre, três para trás e dois para a frente (não cobrem os olhos)
+  const fw = 0;
+  simHair(ctx, E, [
+    { p: [2, -15, -6, -26, -15, -18, -18 + fw, -1], w: 7.2, c: PAL.rainbow[5] },
+    { p: [2, -15, -4, -25, -11, -17, -12.5 + fw, -7.5], w: 6.8, c: PAL.rainbow[4] },
+    { p: [3, -15, -1, -24, -5, -17, -6 + fw, -10.5], w: 6.2, c: PAL.rainbow[3] },
+    { p: [3, -15, 2, -24, 0, -17, 0 + fw, -11.5], w: 5.6, c: PAL.rainbow[2] },
+    { p: [5, -15, 10, -22, 12, -16, 11.5 + fw, -11], w: 5.6, c: PAL.rainbow[1] },
+    { p: [4, -15, 6, -24, 8, -17, 7.5 + fw, -12], w: 6, c: PAL.rainbow[0] },
+  ].map((h, k) => ({ ...h, id: 'fr' + k, seed: 200 + k * 1.3 })), PHYS.fringe);
+
+  if (cos.crown) crown(ctx, t);
+  ctx.save(); ctx.translate(4, -15); ctx.rotate(0.16);
+  blob(ctx, PAL.gold, () => { ctx.moveTo(-6, 0); ctx.lineTo(0, -22); ctx.lineTo(6, 0); ctx.quadraticCurveTo(0, 2.5, -6, 0); });
+  ctx.strokeStyle = PAL.goldDark; ctx.lineWidth = 0.9;
+  for (let i = 0; i < 3; i++) {
+    const y = -4 - i * 5.3, hw = 5.2 * (1 - (i * 5.3 + 4) / 22);
+    ctx.beginPath(); ctx.moveTo(-hw, y + 1.4); ctx.lineTo(hw, y - 1.4); ctx.stroke();
   }
-
-  // ── Sombra no chão ────────────────────────────────────────────────────────
-  ctx.fillStyle = 'rgba(0,0,0,0.13)';
-  ctx.beginPath(); ctx.ellipse(cx, cy+27, 22, 5, 0, 0, TAU); ctx.fill();
-
-  // ── Cauda ─────────────────────────────────────────────────────────────────
-  const tailC = state === 'win'
-    ? ['#ff1111','#ff8800','#ffee00','#00ee66','#0088ff','#cc00ff']
-    : ['#ff55ff','#ff44cc','#ff8844','#ffcc44','#44ffdd','#88aaff'];
-  const tSpd = state === 'run' ? 5.5 : state === 'win' ? 6.5 : 3.5;
-  for (let i = 0; i < tailC.length; i++) {
-    const w1 = Math.sin(t*tSpd       + i*0.75) * 11;
-    const w2 = Math.sin(t*(tSpd-0.7) + i*1.2)  * 8;
-    ctx.strokeStyle = tailC[i]; ctx.lineWidth = 5.5 - i*0.55; ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(cx-18, cy+2+bob);
-    ctx.bezierCurveTo(cx-34+w1, cy+8+i*2.5, cx-40+w2, cy+20+i*3, cx-32+w1*1.3, cy+32+i*4);
-    ctx.stroke();
-  }
-
-  // ── Pernas traseiras ──────────────────────────────────────────────────────
-  if (moving && p.onG) {
-    ch_drawLeg(ctx, cx-14, cy+14+bob, lp+Math.PI, '#ffaadd','#ee88cc');
-    ch_drawLeg(ctx, cx- 6, cy+14+bob, lp,         '#ffaadd','#ee88cc');
-  } else {
-    ch_drawLeg(ctx, cx-14, cy+14+bob, 0, '#ffaadd','#ee88cc');
-    ch_drawLeg(ctx, cx- 6, cy+14+bob, 0, '#ffaadd','#ee88cc');
-  }
-
-  // ── Corpo ─────────────────────────────────────────────────────────────────
-  const bodyG = ctx.createRadialGradient(cx-5, cy-2+bob, 3, cx, cy+6+bob, 26);
-  if (state === 'hurt') {
-    bodyG.addColorStop(0,'#ffe8e8'); bodyG.addColorStop(0.45,'#ffbbbb'); bodyG.addColorStop(1,'#ff8888');
-  } else {
-    bodyG.addColorStop(0,'#ffe8f8'); bodyG.addColorStop(0.45,'#ffbbee'); bodyG.addColorStop(1,'#ff88cc');
-  }
-  ctx.fillStyle = bodyG;
-  ctx.beginPath(); ctx.ellipse(cx, cy+6+bob, 23, 18, -0.08, 0, TAU); ctx.fill();
-  ctx.strokeStyle = state === 'hurt' ? '#ff4444' : '#ff77cc'; ctx.lineWidth = 1.4; ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.25)';
-  ctx.beginPath(); ctx.ellipse(cx+5, cy+1+bob, 13, 9, -0.2, 0, TAU); ctx.fill();
-
-  // ── Pernas dianteiras ─────────────────────────────────────────────────────
-  if (moving && p.onG) {
-    ch_drawLeg(ctx, cx+ 6, cy+14+bob, lp+Math.PI*0.5, '#ffccee','#ff99dd');
-    ch_drawLeg(ctx, cx+14, cy+14+bob, lp+Math.PI*1.5, '#ffccee','#ff99dd');
-  } else if (!p.onG) {
-    ch_drawLeg(ctx, cx+ 4, cy+10+bob, -0.6, '#ffccee','#ff99dd');
-    ch_drawLeg(ctx, cx+14, cy+10+bob, -0.8, '#ffccee','#ff99dd');
-  } else {
-    ch_drawLeg(ctx, cx+ 6, cy+14+bob, 0, '#ffccee','#ff99dd');
-    ch_drawLeg(ctx, cx+14, cy+14+bob, 0, '#ffccee','#ff99dd');
-  }
-
-  // ── Pescoço ───────────────────────────────────────────────────────────────
-  const nkG = ctx.createLinearGradient(cx+4, cy-6+bob, cx+16, cy+8+bob);
-  nkG.addColorStop(0,'#ffddee'); nkG.addColorStop(1,'#ffaadd');
-  ctx.fillStyle = nkG;
-  ctx.beginPath();
-  ctx.moveTo(cx, cy-2+bob); ctx.lineTo(cx+14, cy-2+bob);
-  ctx.quadraticCurveTo(cx+22, cy-22+bob, cx+18, cy-32+bob);
-  ctx.quadraticCurveTo(cx+10, cy-24+bob, cx-2,  cy-8+bob);
-  ctx.closePath(); ctx.fill();
-
-  // ── Cabeça ────────────────────────────────────────────────────────────────
-  const hx = cx+11, hy = cy-22+bob;
-  const hdG = ctx.createRadialGradient(hx-5, hy-6, 3, hx, hy, 21);
-  if (state === 'hurt') {
-    hdG.addColorStop(0,'#fff5f5'); hdG.addColorStop(0.55,'#ffcccc'); hdG.addColorStop(1,'#ffaaaa');
-  } else {
-    hdG.addColorStop(0,'#fff5fc'); hdG.addColorStop(0.55,'#ffccee'); hdG.addColorStop(1,'#ffaadd');
-  }
-  ctx.fillStyle = hdG;
-  ctx.beginPath(); ctx.arc(hx, hy, 20, 0, TAU); ctx.fill();
-  ctx.strokeStyle = state === 'hurt' ? '#ff6666' : '#ff88cc'; ctx.lineWidth = 1.5; ctx.stroke();
-
-  // ── Orelhas ───────────────────────────────────────────────────────────────
-  ctx.fillStyle = '#ffbbee';
-  ctx.beginPath();
-  ctx.moveTo(hx-7, hy-14); ctx.lineTo(hx-13, hy-28); ctx.lineTo(hx-1, hy-16);
-  ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = '#ff99cc'; ctx.lineWidth = 1; ctx.stroke();
-
-  const droop = state === 'hurt' ? 4 : 0; // orelhinhas caídas quando machucada
-  ctx.fillStyle = '#ff99dd';
-  ctx.beginPath();
-  ctx.moveTo(hx+2,  hy-15+droop);
-  ctx.lineTo(hx-2,  hy-30+droop*0.5);
-  ctx.lineTo(hx+12, hy-17+droop);
-  ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = '#ff77bb'; ctx.lineWidth = 1; ctx.stroke();
-  ctx.fillStyle = '#ffccee';
-  ctx.beginPath();
-  ctx.moveTo(hx+3,   hy-16+droop);
-  ctx.lineTo(hx+0.5, hy-26+droop*0.5);
-  ctx.lineTo(hx+10,  hy-18+droop);
-  ctx.closePath(); ctx.fill();
-
-  // ── Chifre ────────────────────────────────────────────────────────────────
-  const hornX = hx+2, hornBase = hy-18, hornTip = hy-48;
-  const hGlowR = state === 'win' ? 26 : 16;
-  const hGlow  = ctx.createRadialGradient(hornX, hornBase-12, 2, hornX, hornBase-12, hGlowR);
-  hGlow.addColorStop(0, state === 'win' ? 'rgba(255,255,80,0.8)' : 'rgba(255,220,80,0.55)');
-  hGlow.addColorStop(1, 'rgba(255,220,80,0)');
-  ctx.fillStyle = hGlow;
-  ctx.beginPath(); ctx.arc(hornX, hornBase-12, hGlowR, 0, TAU); ctx.fill();
-
-  const hBands = ['#ffe066','#ffcc33','#ff9944','#ff5599','#dd44ff','#6655ff','#44ccff'];
-  for (let i = 0; i < hBands.length; i++) {
-    const f0 = i/hBands.length, f1 = (i+1)/hBands.length;
-    const y0 = hornBase - f0*(hornBase-hornTip), y1 = hornBase - f1*(hornBase-hornTip);
-    const w0 = 6.5*(1-f0*0.88), w1 = 6.5*(1-f1*0.88);
-    ctx.fillStyle = hBands[i];
-    ctx.beginPath();
-    ctx.moveTo(hornX-w0,y0); ctx.lineTo(hornX+w0,y0);
-    ctx.lineTo(hornX+w1,y1); ctx.lineTo(hornX-w1,y1);
-    ctx.closePath(); ctx.fill();
-  }
-  ctx.strokeStyle = 'rgba(255,255,255,0.65)'; ctx.lineWidth = 1.8; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(hornX-2, hornBase); ctx.lineTo(hornX-1, hornTip+5); ctx.stroke();
-
-  const nSpark = state === 'win' ? 6 : 4;
-  const st2    = t * (state === 'win' ? 8 : 5);
-  for (let i = 0; i < nSpark; i++) {
-    const sa = st2 + i * TAU / nSpark;
-    const sr = (state === 'win' ? 9 : 6) + Math.sin(st2*1.3+i)*3;
-    ctx.fillStyle = `hsl(${(st2*55+i*60)%360},100%,80%)`;
-    ctx.globalAlpha = 0.6 + 0.4*Math.sin(st2*2+i);
-    ctx.beginPath(); ctx.arc(hornX+Math.cos(sa)*sr, hornTip+Math.sin(sa)*3, 2, 0, TAU); ctx.fill();
-  }
-  ctx.globalAlpha = 1;
-
-  // ── Juba ──────────────────────────────────────────────────────────────────
-  const maneC = state === 'win'
-    ? ['#ff1111','#ff8800','#ffee00','#00cc44','#0066ff','#cc00ff']
-    : ['#ff33bb','#ff8844','#ffdd33','#44ffcc','#5599ff','#cc44ff'];
-  const mSpd = state === 'run' ? 5.5 : 3.2;
-  for (let i = 0; i < maneC.length; i++) {
-    const mw  = Math.sin(t*mSpd        + i*0.85) * 8;
-    const mw2 = Math.sin(t*(mSpd-0.8)  + i*1.3)  * 6;
-    ctx.strokeStyle = maneC[i]; ctx.lineWidth = 5-i*0.5; ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(hx-4-i*1.2, hy-16);
-    ctx.bezierCurveTo(hx-12+mw, hy-4, hx-16+mw2, cy+4+bob, hx-12+mw*0.7, cy+12+bob+i*1.5);
-    ctx.stroke();
-  }
-
-  // ── Focinho ───────────────────────────────────────────────────────────────
-  ctx.fillStyle = '#ffeef8';
-  ctx.beginPath(); ctx.ellipse(hx+14, hy-5, 9, 6.5, 0.1, 0, TAU); ctx.fill();
-  ctx.strokeStyle = '#ffbbdd'; ctx.lineWidth = 1; ctx.stroke();
-  ctx.fillStyle = '#ffaac8';
-  ctx.beginPath(); ctx.ellipse(hx+12, hy-2.5, 2, 1.5, -0.3, 0, TAU); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(hx+17, hy-2.5, 2, 1.5,  0.3, 0, TAU); ctx.fill();
-
-  // ── Olho + Bochecha + Boca ────────────────────────────────────────────────
-  _ch_eye(ctx, hx+13, hy-10, state, t);
-
-  const blushA = state === 'win' ? 0.55 : state === 'hurt' ? 0.45 : 0.32;
-  ctx.fillStyle = state === 'hurt'
-    ? `rgba(255,60,60,${blushA})` : `rgba(255,110,155,${blushA})`;
-  ctx.beginPath(); ctx.ellipse(hx+20, hy-1, 7, 4.5, 0.15, 0, TAU); ctx.fill();
-  ctx.fillStyle = 'rgba(255,200,220,0.6)';
-  ctx.beginPath(); ctx.arc(hx+18, hy+0.5, 1.2, 0, TAU); ctx.fill();
-  ctx.beginPath(); ctx.arc(hx+23, hy-1.5, 0.9, 0, TAU); ctx.fill();
-
-  _ch_mouth(ctx, hx, hy, state);
-
-  // ── Win: coraçõezinhos orbitando ──────────────────────────────────────────
-  if (state === 'win') {
-    const wt = t * 2.5;
-    for (let i = 0; i < 4; i++) {
-      const ang = wt + i * Math.PI / 2;
-      const rx  = cx + Math.cos(ang) * 42;
-      const ry  = cy - 14 + Math.sin(ang * 0.7) * 22;
-      ctx.globalAlpha = 0.65 + 0.35 * Math.sin(wt+i);
-      const hs = 5;
-      ctx.fillStyle = i % 2 === 0 ? '#ff55cc' : '#ffdd44';
-      ctx.save(); ctx.translate(rx, ry);
-      ctx.beginPath();
-      ctx.moveTo(0, hs*0.5);
-      ctx.bezierCurveTo(-hs*1.4,-hs*0.3, -hs*1.4,-hs*1.2, 0,-hs*0.7);
-      ctx.bezierCurveTo( hs*1.4,-hs*1.2,  hs*1.4,-hs*0.3, 0, hs*0.5);
-      ctx.closePath(); ctx.fill();
-      ctx.restore();
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  // ── Cosméticos ────────────────────────────────────────────────────────────
-  if (cosmetics.wings) {
-    const wf = Math.sin(t*5)*14;
-    ctx.fillStyle = 'rgba(200,160,255,0.75)';
-    ctx.beginPath(); ctx.moveTo(cx-10,cy-5+bob);
-    ctx.quadraticCurveTo(cx-55,cy-20-wf,cx-48,cy+14);
-    ctx.quadraticCurveTo(cx-28,cy+2,cx-10,cy+2+bob); ctx.fill();
-    ctx.strokeStyle = '#aa88ff'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.fillStyle = 'rgba(240,200,255,0.5)';
-    ctx.beginPath(); ctx.moveTo(cx-10,cy+2+bob);
-    ctx.quadraticCurveTo(cx-42,cy+8-wf*0.5,cx-38,cy+28);
-    ctx.quadraticCurveTo(cx-22,cy+18,cx-10,cy+12+bob); ctx.fill();
-  }
-  if (cosmetics.crown) {
-    const cr_t = performance.now() / 1000;
-    ctx.fillStyle = '#FFD700';
-    const cx2 = hx+10, cy2 = hy-40+bob;
-    ctx.beginPath();
-    ctx.moveTo(cx2-14,cy2+4); ctx.lineTo(cx2-14,cy2-10);
-    ctx.lineTo(cx2-8, cy2-4); ctx.lineTo(cx2,   cy2-14);
-    ctx.lineTo(cx2+8, cy2-4); ctx.lineTo(cx2+14,cy2-10);
-    ctx.lineTo(cx2+14,cy2+4); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = '#FFA500'; ctx.lineWidth = 1.5; ctx.stroke();
-    ['#ff4466','#44ffcc','#ffee44'].forEach((c,i) => {
-      ctx.fillStyle = c; ctx.beginPath();
-      ctx.arc(cx2-8+i*8, cy2-2, 3, 0, TAU); ctx.fill();
-    });
-    ctx.globalAlpha = 0.5 + 0.5*Math.abs(Math.sin(cr_t*3));
-    ctx.fillStyle = '#ffffaa';
-    ctx.beginPath(); ctx.arc(cx2+2, cy2-16, 2, 0, TAU); ctx.fill();
-    ctx.globalAlpha = 1;
-  }
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 1.2; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-2.6, -2.5); ctx.lineTo(-0.6, -15); ctx.stroke();
+  ctx.restore();
 
   ctx.restore();
+  if (opts.win) hearts(ctx, t);
+  ctx.restore();
+}
+
+// Um passo de uma pata: apoio (casco no chão, vai para trás) e balanço (levanta, dobra e volta à frente).
+function step(p, stance, A, B) {
+  if (p < stance) return { hip: lerp(-A * 1.25, A * 0.75, p / stance), bend: 0 };
+  const s = (p - stance) / (1 - stance);
+  return { hip: lerp(A * 0.75, -A * 1.25, inOutSine(s)), bend: Math.sin(s * Math.PI) * B };
+}
+
+// Pata no galope: apoio curto e forte; no ar dobra bem e no fim estica para "alcançar" o chão.
+function gallopLeg(p, front) {
+  const stance = 0.3, A = front ? 0.55 : 0.5;
+  if (p < stance) return { hip: lerp(-A * 1.2, A * 0.85, p / stance), bend: 0 };
+  const s = (p - stance) / (1 - stance);
+  const fold = Math.sin(Math.min(1, s / 0.75) * Math.PI);    // dobra cedo e estica antes de pousar
+  return { hip: lerp(A * 0.85, -A * 1.2, inOutSine(s)), bend: fold * (front ? 1.9 : 1.5) };
+}
+
+// asas (cosmético): saem das costas, por cima do corpo e atrás da cabeça
+function wings(ctx, t, bob) {
+  const wf = Math.sin(t * 5) * 9;
+  ctx.save(); ctx.translate(-4, -5 + bob); ctx.scale(0.7, 0.7);
+  ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(-45, -15 - wf, -38, 19);
+  ctx.quadraticCurveTo(-18, 7, 0, 7); ctx.closePath();
+  ctx.fillStyle = 'rgba(200,160,255,0.8)'; ctx.fill();
+  ctx.strokeStyle = '#aa88ff'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, 7);
+  ctx.quadraticCurveTo(-32, 13 - wf * 0.5, -28, 33);
+  ctx.quadraticCurveTo(-12, 23, 0, 17); ctx.closePath();
+  ctx.fillStyle = 'rgba(240,200,255,0.6)'; ctx.fill();
+  ctx.restore();
+}
+
+// coroa (cosmético): no alto da cabeça, o chifre sai do meio dela
+function crown(ctx, t) {
+  ctx.save(); ctx.translate(3, -14); ctx.scale(0.62, 0.62);
+  blob(ctx, '#FFD700', () => {
+    ctx.moveTo(-14, 0); ctx.lineTo(-14, -14); ctx.lineTo(-8, -8); ctx.lineTo(0, -18);
+    ctx.lineTo(8, -8); ctx.lineTo(14, -14); ctx.lineTo(14, 0); ctx.closePath();
+  });
+  ['#ff4466', '#44ffcc', '#ffee44'].forEach((c, i) => {
+    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(-8 + i * 8, -5, 2.6, 0, TAU); ctx.fill();
+  });
+  ctx.globalAlpha = 0.5 + 0.5 * Math.abs(Math.sin(t * 3));
+  sparkle(ctx, 12, -18, 3.5);
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// vitória: coraçõezinhos orbitando o corpo
+function hearts(ctx, t) {
+  const wt = t * 2.5, hs = 4;
+  for (let i = 0; i < 4; i++) {
+    const ang = wt + i * Math.PI / 2;
+    ctx.save(); ctx.translate(Math.cos(ang) * 36, -16 + Math.sin(ang * 0.7) * 18);
+    ctx.globalAlpha = 0.65 + 0.35 * Math.sin(wt + i);
+    ctx.fillStyle = i % 2 === 0 ? '#ff55cc' : '#ffdd44';
+    ctx.beginPath(); ctx.moveTo(0, hs * 0.5);
+    ctx.bezierCurveTo(-hs * 1.4, -hs * 0.3, -hs * 1.4, -hs * 1.2, 0, -hs * 0.7);
+    ctx.bezierCurveTo(hs * 1.4, -hs * 1.2, hs * 1.4, -hs * 0.3, 0, hs * 0.5);
+    ctx.fill(); ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function blinkAt(t) { const b = t % 3.6; return b < 0.14 ? Math.abs(b - 0.07) / 0.07 : 1; }
+
+// parado: respira; correndo: galope (tu-tu-tu-dum, depois as quatro patas no ar), o corpo
+// balança como cavalinho de balanço
+function groundPose(moving, t) {
+  if (!moving) return { bob: Math.sin(t * 2.6) * 1.2, tilt: Math.sin(t * 1.3) * 0.04 };
+  const T = 0.56, u = (t % T) / T;
+  const legs = [0, 0.09, 0.3, 0.4].map((o, i) => gallopLeg((u - o + 1) % 1, i >= 2));
+  const air = u > 0.7 ? Math.sin((u - 0.7) / 0.3 * Math.PI) : 0;
+  return { lift: air * 7, pitch: -0.11 * Math.cos((u - 0.12) * TAU), tilt: 0.05 * Math.cos((u - 0.12) * TAU), legs };
+}
+
+// no ar: estica com a velocidade, cabeça para cima subindo e para baixo caindo, patas encolhidas
+// (vy em px por quadro de 60 fps, como em game.js; air = segundos fora do chão)
+function airPose(vy, air) {
+  const spd = Math.min(Math.abs(vy) / 12, 1), st = 1 + 0.15 * spd, k = Math.min(1, air / 0.12);
+  return { sx: 1 / Math.sqrt(st), sy: st, tilt: (vy < 0 ? -0.12 : 0.1) * spd,
+    legs: [{ hip: 0.5 * k, bend: 1.2 * k }, { hip: 0.35 * k, bend: 1.2 * k },
+           { hip: -0.6 * k, bend: 1.6 * k }, { hip: -0.75 * k, bend: 1.6 * k }] };
+}
+
+return { draw, createHairSim, groundPose, airPose, blinkAt };
+})();
+
+// Estado de animação por jogador (o objeto `p` muda a cada resetP, então o cabelo recomeça junto)
+const _ch_unicornAnim = new WeakMap();
+// Fração do movimento real que o cabelo sente: no galope (4.5 px/quadro) dá o mesmo vento
+// de ~190 px/s do esboço aprovado; o pulo do jogo é bem mais alto que o do esboço, então
+// o vertical entra mais fraco para o cabelo não chicotear.
+const _CH_HAIR_KX = 0.7, _CH_HAIR_KY = 0.45;
+
+function ch_drawUnicorn(ctx, p, camX, keys, cosmetics, isWin, grav = 0.55) {
+  const t = performance.now() / 1000;
+  let a = _ch_unicornAnim.get(p);
+  if (!a) { a = { sim: _chU.createHairSim(), t, air: 0, ax: null, ay: null }; _ch_unicornAnim.set(p, a); }
+  const dt = Math.max(0, Math.min(0.1, t - a.t)); a.t = t;
+  a.air = p.onG ? 0 : a.air + dt;
+
+  if (p.invT > 0 && Math.floor(p.invT / 6) % 2 === 0) return;   // pisca depois de levar dano
+
+  // âncora: centro do corpo, com os cascos no pé da hitbox
+  const ax = p.x + p.w / 2, ay = p.y + p.h - 26;
+  // teletransporte (respawn, checkpoint, cena do menu): o cabelo recomeça no penteado
+  if (a.ax != null && Math.hypot(ax - a.ax, ay - a.ay) > 80) a.sim = _chU.createHairSim();
+  a.ax = ax; a.ay = ay;
+
+  // parede segura vx em 0: fica parado em vez de galopar no lugar
+  const moving = p.onG && Math.abs(p.vx) > 0.1;
+  const pose = p.onG ? _chU.groundPose(moving, t) : _chU.airPose(p.vy, a.air);
+  pose.open = p.invT > 0 ? 0 : _chU.blinkAt(t);                 // machucado: olhinhos apertados
+  const ls = p.landSquash || 0;
+  pose.sx = (pose.sx || 1) * (1 + 0.18 * ls);
+  pose.sy = (pose.sy || 1) * (1 - 0.22 * ls);
+  // vento parado (o movimento de verdade faz o resto); no ar o cabelo cai junto com o corpo
+  pose.wind = { x: 0, gust: !p.onG ? 8 : moving ? 55 : 7 };
+  pose.fall = !p.onG && p.vy < 18 ? _CH_HAIR_KY * grav * 3600 : 0;
+
+  ctx.save();
+  ctx.translate(-camX, 0);
+  ctx.translate((1 - _CH_HAIR_KX) * ax, (1 - _CH_HAIR_KY) * ay);
+  const frame = ctx.getTransform();   // espaço da simulação do cabelo
+  ctx.translate(_CH_HAIR_KX * ax, _CH_HAIR_KY * ay);
+  if (p.facing < 0) ctx.scale(-1, 1);
+  _chU.draw(ctx, pose, t, { knees: true, sim: a.sim, frame, cosmetics: cosmetics || {}, win: isWin });
   ctx.restore();
 }
 

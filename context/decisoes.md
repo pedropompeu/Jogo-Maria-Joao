@@ -51,6 +51,22 @@ criado: 2026-09-12
   **Por quê:** O unicórnio é o protagonista da marca (`BRAND.md` §05); o "gostoso" vem do brilho/celebração na interface, não de reescurecer as fases que as crianças amam.
   **Fecha:** Fases claras vs moldura cósmica. `[[gameplay-mobile#opcoes]]`.
   **Descartado:** Reescurecer todas as fases (retrabalho de arte, perda de variedade).
+- [2026-10-17] (d) **Unicórnio redesenhado como boneco articulado feito só em código (esboço v16 aprovado).**
+  **Por quê:** Pedro pediu um unicórnio "mais belo e fofo" e escolheu, da referência, cabeção de bebê, olhões, contorno escuro, crina em mechas e chifre dourado (corpo segue rosa); depois guiou corpo alongado, pescoço equino, "bundinha", joelhos, cascos retos, galope de cavalo e crina/rabo em mechas arco-íris com movimento de cabelo — "perfeito, agora ficou com cara de cabelo". Ninguém vai sentar num editor de animação, e o projeto segue sem dependências. ← `fontes/2026-10-17-pedro-unicornio-v16.md`
+  **Fecha:** Ferramenta de animação de personagem vs. desenho no código; visual do herói.
+  **Descartado:** Rive/Spine/DragonBones (exigem alguém no editor); GSAP/anime.js (só deixam o movimento macio, e é dependência nova); PixiJS+Spine (reescreveria o render); manter o desenho antigo.
+- [2026-10-17] (d) **Botões de toque com raio 1/3 maior: d-pad 72→96px, pulo 84→112px.**
+  **Por quê:** pedido do Pedro ("aumentar em 1/3 o raio dos botões"). Ícones crescem na mesma proporção; o botão de tela cheia (44px) não é de jogabilidade e ficou igual.
+  **Fecha:** tamanho dos botões de jogabilidade no celular.
+  **Descartado:** —
+- [2026-10-17] (i) **Cabelo do unicórnio simulado no espaço do mundo, sentindo só uma fração do movimento real (κx=0,7; κy=0,45).**
+  **Por quê:** no esboço o vento vinha de um número fixo; no jogo o arrasto vem do deslocamento de verdade, e o pulo do jogo é bem mais alto que o do esboço — com κ=1 o cabelo chicoteia. A queda usa a gravidade da fase (`grav`), e um salto de mais de 80px (respawn, checkpoint, menu) recomeça o penteado.
+  **Fecha:** como portar a física do esboço v16 para `ch_drawUnicorn`.
+  **Descartado:** vento sintético por estado (cabelo não reage a parar de repente nem a cair de plataforma); κ=1 (chicote no pulo).
+- [2026-10-17] (i) **Estados do jogo no boneco novo:** machucado = olhos apertados + o pisca-pisca que já existia; vitória = coraçõezinhos orbitando; cosméticos = asas nas costas e coroa sob o chifre; no menu o unicórnio entra galopando e vira de frente ao parar.
+  **Por quê:** manter as expressões e a loja que existiam no desenho antigo ([[decisoes#expansao]]) sem inventar estado novo.
+  **Fecha:** mapeamento estado → pose do herói.
+  **Descartado:** expressões novas (fora do que foi pedido).
 
 - [2026-09-12] (d) **Foco híbrido: produtos próprios da holding e demandas sob medida para clientes.**
   **Por quê:** O ecossistema engloba tanto plataformas proprietárias (ViaXen, PomPay, NarraVox) quanto soluções sob demanda para clientes, exigindo rigor técnico e separação clara de escopos.

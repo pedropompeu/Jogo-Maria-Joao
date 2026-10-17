@@ -160,6 +160,25 @@ relacionado:
 - [2026-10-17] (e) Corrigido (SW `unicorn-v12`): `index.html` chama `update()` a cada abertura e tem guarda de boot (`window.__gameBooted`, setado no fim do `game.js`; recarrega 1×, flag `bootRetry` em `sessionStorage`); `index.html` pede `game.js` sem `?v=`; `netlify.toml` reescreve `/game.js?v=…` para `legacy/v7-reload.js`. Laboratório (toque real via CDP, servidor imitando a regra): v7→novo começa **na 1ª visita**; v12→v13 atualiza entre a 1ª e a 3ª visita (antes: nenhuma em 3); `game.js` quebrado → 1 recarga, sem loop. Smoke cobre `__gameBooted`. Falta: conferir a regra no Netlify publicado (`curl` em `game.js?v=4.5`) e o teste no celular do Pedro.
 - [2026-10-17] (d) Pedro testou no celular dele depois do deploy: "funcionou". ← `fontes/2026-10-17-pedro-tela-cheia.md`
 
+### [AUD-12] Unicórnio "aterrissava" em todo quadro parado no chão
+
+- **Severidade:** médio — em todo quadro no chão o jogo tocava o som de pouso, soltava poeira e amassava o unicórnio; o efeito de pouso perdia sentido e o som repetia sem parar
+- **Onde:** `game.js` `updatePlayer` (cálculo de `wasAir` depois de `p.onG = false`)
+- **Reprodução:** [2026-10-17] (e) ao portar o unicórnio novo, `p.landSquash` ficava em 1 com o personagem parado no chão; `wasAir` era lido depois de `onG` já ter sido zerado para a checagem de colisão, então todo quadro contava como pouso
+- **Por que importa:** o amassado do pouso do boneco novo ficaria travado, e o SFX/partículas de pouso disparavam a cada quadro
+- **Fix recomendado:** guardar `p.wasOnG = p.onG` antes de zerar e usar `wasAir = !p.wasOnG`. Custo: ~5min
+- **Estado:** corrigido
+- [2026-10-17] (e) Corrigido junto com o unicórnio novo (SW `unicorn-v14`); conferido no navegador: o amassado aparece só no pouso e some em ~0,2s.
+
+### [AUD-13] Desenho do unicórnio novo é mais largo que a hitbox
+
+- **Severidade:** baixo — a criança pode ver a cabeça ou o rabo encostar num inimigo ou num espinho sem levar dano, ou o contrário parecer injusto
+- **Onde:** `characters.js` (`_chU.draw`, ~−35…+42px em torno do centro) vs. hitbox 44×52 em `game.js` `resetP`
+- **Reprodução:** [2026-10-17] (i) estático — medida das partes do boneco no esboço v16 contra `p.w=44`; ainda não observado em jogo
+- **Por que importa:** colisão que não bate com o que se vê dá sensação de injustiça, sobretudo nas fases com espinhos
+- **Fix recomendado:** jogar as fases com espinhos e decidir com o Pedro se a hitbox cresce, o desenho encolhe ou fica como está (hitbox menor que o desenho é comum e costuma ser "a favor" do jogador). Custo: ~30min de teste
+- **Estado:** aberto
+
 ## Fechados {#fechados}
 
 *Nenhum achado arquivado.*
