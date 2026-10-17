@@ -21,3 +21,5 @@ vom mais volume e brilho
 com movimento mais parecido com cabelo
 não, o cabelo precisa estar com um movimento mais parecido com de cabelo
 perfeito, agora ficou com cara de cabelo.Aumentaar os botões de jogabilidade aumentar em 1/3 o raio dos botões  Pode aplicar no jogo e fazer o deploy.
+perfeito
+testei no celular, funcionou
